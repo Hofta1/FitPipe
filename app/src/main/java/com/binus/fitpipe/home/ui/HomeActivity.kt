@@ -15,7 +15,7 @@ import com.binus.fitpipe.ui.theme.FitPipeTheme
 import com.example.yourapp.ui.components.FPScaffold
 import dagger.hilt.android.AndroidEntryPoint
 
-//@AndroidEntryPoint
+@AndroidEntryPoint
 class HomeActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
