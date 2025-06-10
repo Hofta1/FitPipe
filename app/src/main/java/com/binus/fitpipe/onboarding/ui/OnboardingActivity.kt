@@ -1,4 +1,4 @@
-package com.binus.fitpipe
+package com.binus.fitpipe.onboarding.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,8 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.binus.fitpipe.ui.theme.FitPipeTheme
+import com.binus.fitpipe.ui.theme.Yellow50
+import dagger.hilt.android.AndroidEntryPoint
 
-class MainActivity : ComponentActivity() {
+@AndroidEntryPoint
+class OnboardingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -34,7 +37,8 @@ class MainActivity : ComponentActivity() {
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
-        modifier = modifier
+        modifier = modifier,
+        color = Yellow50
     )
 }
 
@@ -42,6 +46,8 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     FitPipeTheme {
-        Greeting("Android")
+        Scaffold { innerPadding ->
+            Greeting("Android", Modifier.padding(innerPadding))
+        }
     }
 }
