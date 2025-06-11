@@ -16,14 +16,17 @@ import com.example.yourapp.ui.components.FPScaffold
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class HomeActivity: ComponentActivity() {
+class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             FitPipeTheme {
-                FPScaffold(modifier = Modifier.fillMaxSize()
-                    .background(Black80)) { innerPadding ->
+                FPScaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Black80)
+                ) { innerPadding ->
 //                    OnboardingScreen(
 //                        onStart = {goToHomeScreen()}
 //                    )
@@ -31,6 +34,7 @@ class HomeActivity: ComponentActivity() {
             }
         }
     }
+
     private fun goToHomeScreen() {
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)

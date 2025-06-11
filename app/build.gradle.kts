@@ -1,9 +1,25 @@
 plugins {
+    alias(libs.plugins.ktlint)
     alias(libs.plugins.ksp)
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+}
+
+ktlint {
+    version.set("1.2.1") // The version of the core Ktlint engine to use
+    android.set(true) // Use the official Android code style guidelines
+
+    // Example of disabling a specific rule
+    disabledRules.add("no-wildcard-imports")
+
+    // You can also create a filter to include/exclude files
+    filter {
+        // exclude { element -> element.file.path.contains("generated/") }
+        include("src/main/**/*.kt")
+        include("src/test/**/*.kt")
+    }
 }
 
 android {

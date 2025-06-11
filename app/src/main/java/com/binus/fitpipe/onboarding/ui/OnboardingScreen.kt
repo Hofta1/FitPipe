@@ -43,9 +43,10 @@ private fun OnBoardingScreen(
     modifier: Modifier = Modifier,
     onStart: () -> Unit,
 ) {
-    Box(modifier = modifier
-        .fillMaxSize(),
-    ){
+    Box(
+        modifier = modifier
+            .fillMaxSize(),
+    ) {
         FadingCircle(
             height = 673,
             width = 581,
@@ -54,8 +55,8 @@ private fun OnBoardingScreen(
             modifier = modifier
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-        ){
-            Spacer(modifier.size(221.dp),)
+        ) {
+            Spacer(modifier.size(221.dp))
             Image(
                 painter = painterResource(R.drawable.pose_tracker_logo),
                 contentDescription = "Pose Tracker Logo",
@@ -89,7 +90,7 @@ private fun OnboardingButton(
             Box(
                 modifier = Modifier
                     .background(color = Yellow50)
-            ){
+            ) {
                 Text(
                     text = text,
                     style = Typo.ExtraBoldTwentyFour,
