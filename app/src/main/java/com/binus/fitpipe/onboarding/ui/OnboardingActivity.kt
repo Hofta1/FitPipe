@@ -22,7 +22,7 @@ class OnboardingActivity : ComponentActivity() {
                 FPScaffold(modifier = Modifier.fillMaxSize(),
                     backgroundColor = Black80
                 ) { innerPadding ->
-                    OnboardingScreen(
+                    OnBoardingScreen(
                         onStart = {goToHomeScreen()}
                     )
                 }

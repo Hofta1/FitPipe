@@ -25,13 +25,12 @@ import com.binus.fitpipe.ui.theme.Yellow50
 import com.example.yourapp.ui.components.FPScaffold
 
 @Composable
-internal fun OnboardingScreen(
-    modifier: Modifier = Modifier,
+internal fun OnBoardingScreen(
     onStart: () -> Unit = {},
 ) {
     FitPipeTheme {
         OnBoardingScreen(
-            modifier = modifier,
+            modifier = Modifier,
             onStart = onStart
         )
     }
