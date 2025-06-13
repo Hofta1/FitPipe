@@ -35,6 +35,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    androidResources{
+        noCompress += "task"
+    }
+
 
     buildTypes {
         release {
