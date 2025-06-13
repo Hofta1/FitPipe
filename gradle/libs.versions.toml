@@ -40,7 +40,7 @@ androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycl
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camera" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camera" }
 androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", version = "1.5.0-beta01" }
-mediapipe = { group = "com.google.mediapipe", name = "tasks-vision", version = "0.20230731"}
+mediapipe = { group = "com.google.mediapipe", name = "tasks-vision", version = "0.10.0"}
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version = "1.9.0" }
 
 [plugins]
