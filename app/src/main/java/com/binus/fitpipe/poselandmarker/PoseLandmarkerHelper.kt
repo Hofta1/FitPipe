@@ -43,17 +43,19 @@ class PoseLandmarkerHelper(private val context: Context) {
         return poseLandmarker?.detectForVideo(mpImage, currentTime)
     }
 
-    fun normalizeLandmarksConverter(landmarks: List<NormalizedLandmark>): List<ConvertedLandmark> {
-        val convertedLandmarks =
-            landmarks.map { landmark ->
+    fun landmarksConverter(landmarks: List<NormalizedLandmark>): List<ConvertedLandmark> {
+        val convertedLandmarks = mutableListOf<ConvertedLandmark>()
+        landmarks.forEachIndexed { index, landmark ->
+            convertedLandmarks.add(
                 ConvertedLandmark(
                     x = landmark.x(),
                     y = landmark.y(),
                     z = landmark.z(),
                     visibility = landmark.visibility(),
                     presence = landmark.presence(),
-                )
-            }
+                ).addKeyPointEnum(index)
+            )
+        }
         return convertedLandmarks
     }
 }
