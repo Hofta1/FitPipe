@@ -120,9 +120,9 @@ class HomeViewModel
 
         fun sendLandmarkData(
             exerciseTitle: String,
-            convertedLandmark: List<ConvertedLandmark>,
+            convertedLandmarks: List<ConvertedLandmark>,
         ) {
-            val shouldSendLandmark = isImportantKeypointPresent(exerciseTitle,convertedLandmark)
+            val shouldSendLandmark = isImportantKeypointPresent(exerciseTitle,convertedLandmarks)
             if (!shouldSendLandmark) {
                 Log.d("HomeViewModel", "Important keypoints missing, not sending data.")
                 return
