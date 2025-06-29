@@ -1,6 +1,5 @@
 package com.binus.fitpipe.home.ui
 
-import android.inputmethodservice.Keyboard.Row
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,7 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.binus.fitpipe.ExerciseKey
 import com.binus.fitpipe.R
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
@@ -80,6 +79,7 @@ private fun HomeScreen(
                 ) { index, item ->
                     ExerciseRow(
                         title = item.title,
+                        exerciseKey = item.exerciseKey,
                         imageResourceId = item.imageResourceId,
                         onItemClick = onItemClick,
                     )
@@ -93,6 +93,7 @@ private fun HomeScreen(
 private fun ExerciseRow(
     modifier: Modifier = Modifier,
     title: String,
+    exerciseKey: ExerciseKey,
     imageResourceId: Int,
     onItemClick: (String) -> Unit
 ) {
@@ -140,7 +141,8 @@ private fun ExerciseRowPreview() {
         ExerciseRow(
             title = "Push Up",
             imageResourceId = R.drawable.jumping_jack_icon, // Replace with a valid image resource ID
-            onItemClick = {}
+            onItemClick = {},
+            exerciseKey = ExerciseKey.push_up
         )
     }
 }

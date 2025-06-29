@@ -2,6 +2,7 @@ package com.binus.fitpipe.home.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.binus.fitpipe.ExerciseKey
 import com.binus.fitpipe.R
 import com.binus.fitpipe.home.data.HomeRepository
 import com.binus.fitpipe.home.data.HomeRowData
@@ -33,19 +34,23 @@ class HomeViewModel @Inject constructor(
                 rows = listOf(
                     HomeRowData(
                         title = "Push Up",
-                        imageResourceId = R.drawable.push_up_icon
+                        imageResourceId = R.drawable.push_up_icon,
+                        exerciseKey = ExerciseKey.push_up
                     ),
                     HomeRowData(
                         title = "Sit Up",
-                        imageResourceId = R.drawable.sit_up_icon
+                        imageResourceId = R.drawable.sit_up_icon,
+                        exerciseKey = ExerciseKey.sit_up
                     ),
                     HomeRowData(
                         title = "Jumping Jack",
-                        imageResourceId = R.drawable.jumping_jack_icon
+                        imageResourceId = R.drawable.jumping_jack_icon,
+                        exerciseKey = ExerciseKey.jumping_jack
                     ),
                     HomeRowData(
                         title = "Squat",
-                        imageResourceId = R.drawable.squat_icon
+                        imageResourceId = R.drawable.squat_icon,
+                        exerciseKey = ExerciseKey.squat
                     ),
                 )
             )

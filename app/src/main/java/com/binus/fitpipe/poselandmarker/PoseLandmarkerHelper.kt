@@ -8,6 +8,7 @@ import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import java.sql.Time
 
 class PoseLandmarkerHelper(private val context: Context) {
     private var poseLandmarker: PoseLandmarker? = null
@@ -23,14 +24,28 @@ class PoseLandmarkerHelper(private val context: Context) {
 
         val options = PoseLandmarker.PoseLandmarkerOptions.builder()
             .setBaseOptions(baseOptions)
-            .setRunningMode(RunningMode.IMAGE)
+            .setNumPoses(1) // Number of poses to detect
+            .setMinPoseDetectionConfidence(0.7f) // 50% confidence threshold
+            .setMinPosePresenceConfidence(0.7f)
+            .setMinTrackingConfidence(0.7f)
+            .setRunningMode(RunningMode.VIDEO)
             .build()
 
         poseLandmarker = PoseLandmarker.createFromOptions(context, options)
     }
 
-    fun detect(bitmap: Bitmap): PoseLandmarkerResult? {
+    fun detect(bitmap: Bitmap, currentTime: Long): PoseLandmarkerResult? {
         val mpImage = BitmapImageBuilder(bitmap).build()
-        return poseLandmarker?.detect(mpImage)
+        return poseLandmarker?.detectForVideo(mpImage, currentTime)
+    }
+
+    fun normalizeLandmarksConverter(landmarks:  List<NormalizedLandmark>) {
+        landmarks.map { landmark ->
+            ConvertedLandmark(
+                x = landmark.x(),
+                y = landmark.y(),
+                z = landmark.z()
+            )
+        }
     }
 }

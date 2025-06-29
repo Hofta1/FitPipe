@@ -47,6 +47,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.binus.fitpipe.R
+import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.PoseLandmarkerHelper
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
@@ -199,7 +200,23 @@ fun PoseCameraScreen() {
             .fillMaxWidth()
             .height(550.dp),
         onPoseDetected = { landmarks ->
+            val landmarkInSequence = mutableListOf<Float>()
+            landmarks.forEach { landmark ->
+                landmarkInSequence.add(landmark.x())
+                landmarkInSequence.add(landmark.y())
+                landmarkInSequence.add(landmark.z())
+            }
+            val convertedLandmark = landmarks.map { landmark ->
+                ConvertedLandmark(
+                    x = landmark.x(),
+                    y = landmark.y(),
+                    z = landmark.z()
+                )
+            }
+
             Log.d("Pose", "Detected ${landmarks.size} landmarks")
+            Log.d("Pose", "Detected $convertedLandmark landmarks")
+
         }
     )
 }
@@ -211,6 +228,7 @@ fun CameraPreviewView(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val lastProcessTime = remember { mutableStateOf(0L) }
 
     val poseHelper = remember { PoseLandmarkerHelper(context) }
 
@@ -226,9 +244,15 @@ fun CameraPreviewView(
             setImageAnalysisAnalyzer(
                 ContextCompat.getMainExecutor(context)
             ) { image: ImageProxy ->
+                val currentTime = System.currentTimeMillis()
+                if(currentTime - lastProcessTime.value < 100) {
+                    // Skip processing if the last frame was processed less than 1 second ago
+                    image.close()
+                    return@setImageAnalysisAnalyzer
+                }
                 try {
                     val bitmap = imageProxyToBitmap(image)
-                    val result = poseHelper.detect(bitmap)
+                    val result = poseHelper.detect(bitmap,currentTime)
                     result?.landmarks()?.firstOrNull()?.let { landmarks ->
                         onPoseDetected(landmarks)
                     }
