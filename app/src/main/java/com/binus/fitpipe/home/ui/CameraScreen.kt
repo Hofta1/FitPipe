@@ -221,7 +221,7 @@ fun PoseCameraScreen(
                 )
             }
 
-            viewModel.sendLandmarkData(ConvertedLandmarkList(exerciseTitle, landmarkInSequence))
+            viewModel.sendLandmarkData(exerciseTitle, landmarkInSequence)
 
             Log.d("Pose", "Detected ${landmarks.size} landmarks")
             Log.d("Pose", "Detected $convertedLandmark landmarks")

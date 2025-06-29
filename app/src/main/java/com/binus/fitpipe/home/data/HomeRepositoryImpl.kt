@@ -10,7 +10,7 @@ class HomeRepositoryImpl @Inject constructor(
     override suspend fun sendPoseLandmark(convertedLandmarkList: ConvertedLandmarkList): Result<String> {
         return try {
             println("Sending pose landmark: $convertedLandmarkList")
-            service.sendPoseLandmark(convertedLandmarkList)
+            service.sendPoseLandmark(convertedLandmarkList.poseKey, convertedLandmarkList.landmarks)
             Result.success(String())
         } catch (e: Exception) {
             Result.failure(e)

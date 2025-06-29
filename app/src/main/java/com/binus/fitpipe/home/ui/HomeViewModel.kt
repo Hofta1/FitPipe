@@ -60,10 +60,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun sendLandmarkData(
-        convertedLandmarkList: ConvertedLandmarkList
+        exerciseTitle: String,
+        landmarkInSequence: List<Float>
     ){
+        val exerciseKey = convertTitleToKey(exerciseTitle)
         viewModelScope.launch {
-            val result = homeRepository.sendPoseLandmark(convertedLandmarkList)
+            val result = homeRepository.sendPoseLandmark(ConvertedLandmarkList(exerciseKey.toString(), landmarkInSequence))
             result.onSuccess {
                 // Handle success, e.g., show a success message or update UI
                 val data = result.getOrNull()
@@ -74,9 +76,14 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-    // Add any properties or methods needed for the HomeViewModel here
 
-    init {
-        // Initialization logic if needed
+    private fun convertTitleToKey(title: String): ExerciseKey? {
+        return when (title) {
+            "Push Up" -> ExerciseKey.push_up
+            "Sit Up" -> ExerciseKey.sit_up
+            "Jumping Jack" -> ExerciseKey.jumping_jack
+            "Squat" -> ExerciseKey.squat
+            else -> null
+        }
     }
 }
