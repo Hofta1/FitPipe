@@ -45,9 +45,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.binus.fitpipe.R
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
+import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
 import com.binus.fitpipe.poselandmarker.PoseLandmarkerHelper
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
@@ -121,7 +124,7 @@ private fun CameraScreen(
 
         // Show camera preview only if permission is granted
         if (hasCameraPermission) {
-            PoseCameraScreen()
+            PoseCameraScreen(exerciseTitle)
         } else {
             Box(
                 modifier = Modifier
@@ -194,7 +197,11 @@ private fun BackButton(
 }
 
 @Composable
-fun PoseCameraScreen() {
+fun PoseCameraScreen(
+    exerciseTitle: String
+) {
+    val viewModel = hiltViewModel<HomeViewModel>()
+
     CameraPreviewView(
         modifier = Modifier
             .fillMaxWidth()
@@ -213,6 +220,8 @@ fun PoseCameraScreen() {
                     z = landmark.z()
                 )
             }
+
+            viewModel.sendLandmarkData(ConvertedLandmarkList(exerciseTitle, landmarkInSequence))
 
             Log.d("Pose", "Detected ${landmarks.size} landmarks")
             Log.d("Pose", "Detected $convertedLandmark landmarks")

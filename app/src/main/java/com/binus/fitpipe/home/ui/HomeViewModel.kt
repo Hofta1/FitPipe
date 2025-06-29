@@ -1,5 +1,6 @@
 package com.binus.fitpipe.home.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.binus.fitpipe.ExerciseKey
@@ -7,6 +8,7 @@ import com.binus.fitpipe.R
 import com.binus.fitpipe.home.data.HomeRepository
 import com.binus.fitpipe.home.data.HomeRowData
 import com.binus.fitpipe.home.data.HomeUiState
+import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -54,6 +56,22 @@ class HomeViewModel @Inject constructor(
                     ),
                 )
             )
+        }
+    }
+
+    fun sendLandmarkData(
+        convertedLandmarkList: ConvertedLandmarkList
+    ){
+        viewModelScope.launch {
+            val result = homeRepository.sendPoseLandmark(convertedLandmarkList)
+            result.onSuccess {
+                // Handle success, e.g., show a success message or update UI
+                val data = result.getOrNull()
+                Log.d("HomeViewModel", "Pose landmark sent successfully: $data")
+            }.onFailure { exception ->
+                // Handle failure, e.g., show an error message
+                Log.d("HomeViewModel", "Failed to send pose landmark: ${exception.message}")
+            }
         }
     }
     // Add any properties or methods needed for the HomeViewModel here
