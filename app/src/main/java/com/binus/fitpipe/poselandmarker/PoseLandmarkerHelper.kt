@@ -25,9 +25,9 @@ class PoseLandmarkerHelper(private val context: Context) {
         val options = PoseLandmarker.PoseLandmarkerOptions.builder()
             .setBaseOptions(baseOptions)
             .setNumPoses(1) // Number of poses to detect
-            .setMinPoseDetectionConfidence(0.7f) // 50% confidence threshold
-            .setMinPosePresenceConfidence(0.7f)
-            .setMinTrackingConfidence(0.7f)
+            .setMinPoseDetectionConfidence(0.95f) // 50% confidence threshold
+            .setMinPosePresenceConfidence(0.95f)
+            .setMinTrackingConfidence(1f)
             .setRunningMode(RunningMode.VIDEO)
             .build()
 
