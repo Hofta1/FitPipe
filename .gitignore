@@ -13,5 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
-/app/src/main/java/com/binus/fitpipe/NetworkModule.kt
-/app/src/main/res/xml/network_security_config.xml
+app/src/main/java/com/binus/fitpipe/NetworkModule.kt
+app/src/main/res/xml/network_security_config.xml
