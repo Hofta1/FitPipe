@@ -10,5 +10,5 @@ data class HomeUiState(
 data class HomeRowData(
     val title: String,
     val imageResourceId: Int,
-    val exerciseKey: ExerciseKey
+    val exerciseKey: ExerciseKey,
 )

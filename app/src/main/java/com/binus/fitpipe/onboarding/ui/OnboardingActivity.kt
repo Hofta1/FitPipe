@@ -12,23 +12,25 @@ import com.binus.fitpipe.ui.theme.Black80
 import com.binus.fitpipe.ui.theme.FitPipeTheme
 import com.example.yourapp.ui.components.FPScaffold
 
-//@AndroidEntryPoint
+// @AndroidEntryPoint
 class OnboardingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             FitPipeTheme {
-                FPScaffold(modifier = Modifier.fillMaxSize(),
-                    backgroundColor = Black80
+                FPScaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    backgroundColor = Black80,
                 ) { innerPadding ->
                     OnBoardingScreen(
-                        onStart = {goToHomeScreen()}
+                        onStart = { goToHomeScreen() },
                     )
                 }
             }
         }
     }
+
     private fun goToHomeScreen() {
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)

@@ -7,6 +7,6 @@ import retrofit2.http.POST
 interface HomeService {
     @POST("pose")
     suspend fun sendPoseLandmark(
-        @Body convertedLandmarkList: ConvertedLandmarkList
+        @Body convertedLandmarkList: ConvertedLandmarkList,
     ): Result<String>
 }

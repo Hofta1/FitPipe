@@ -1,6 +1,5 @@
 package com.binus.fitpipe.home.ui
 
-import androidx.compose.runtime.*
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -30,6 +29,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -47,11 +47,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.binus.fitpipe.R
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
-import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
 import com.binus.fitpipe.poselandmarker.PoseLandmarkerHelper
+import com.binus.fitpipe.poselandmarker.addKeyPoint
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
 import com.binus.fitpipe.ui.theme.Grey70
@@ -72,7 +71,7 @@ internal fun CameraScreen(
         CameraScreen(
             exerciseTitle = exerciseTitle,
             modifier = Modifier,
-            onBackPressed = onBackPressed
+            onBackPressed = onBackPressed,
         )
     }
 }
@@ -89,16 +88,17 @@ private fun CameraScreen(
         mutableStateOf(
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
+                Manifest.permission.CAMERA,
+            ) == PackageManager.PERMISSION_GRANTED,
         )
     }
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        hasCameraPermission = isGranted
-    }
+    val launcher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            hasCameraPermission = isGranted
+        }
 
     LaunchedEffect(Unit) {
         if (hasCameraPermission == false) {
@@ -109,8 +109,9 @@ private fun CameraScreen(
     Column {
         Spacer(Modifier.size(75.dp))
         Box(
-            modifier = modifier
-                .fillMaxWidth()
+            modifier =
+                modifier
+                    .fillMaxWidth(),
         ) {
             BackButton { onBackPressed() }
             Text(
@@ -118,7 +119,7 @@ private fun CameraScreen(
                 style = Typo.BoldTwentyFour,
                 color = White80,
                 modifier = modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
 
@@ -127,46 +128,48 @@ private fun CameraScreen(
             PoseCameraScreen(exerciseTitle)
         } else {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(550.dp)
-                    .background(Color.Black),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(550.dp)
+                        .background(Color.Black),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = "Camera permission required",
                     color = White80,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             }
         }
 
         Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .clip(shape = RoundedCornerShape(16.dp))
-                .background(Black70)
-                .padding(vertical = 26.dp)
-                .align(Alignment.CenterHorizontally)
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .clip(shape = RoundedCornerShape(16.dp))
+                    .background(Black70)
+                    .padding(vertical = 26.dp)
+                    .align(Alignment.CenterHorizontally),
         ) {
             Text(
                 text = "Count: 9",
                 style = Typo.MediumEighteen,
                 color = White80,
                 textAlign = TextAlign.Center,
-                modifier = modifier.fillMaxWidth()
+                modifier = modifier.fillMaxWidth(),
             )
             Spacer(modifier.size(14.dp))
             Box(
                 contentAlignment = Alignment.BottomCenter,
-                modifier = modifier.height(36.dp)
+                modifier = modifier.height(36.dp),
             ) {
                 Text(
                     text = "Feedback Text Long Text Te",
                     style = Typo.BoldTwenty,
                     color = if (true) Yellow50 else Red50, // Replace with actual condition
                     textAlign = TextAlign.Center,
-                    modifier = modifier.fillMaxWidth()
+                    modifier = modifier.fillMaxWidth(),
                 )
             }
         }
@@ -179,61 +182,79 @@ private fun BackButton(
     onBackPressed: () -> Unit,
 ) {
     Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(Grey70)
-            .size(30.dp)
-            .clickable { onBackPressed() },
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .clip(CircleShape)
+                .background(Grey70)
+                .size(30.dp)
+                .clickable { onBackPressed() },
+        contentAlignment = Alignment.Center,
     ) {
         Image(
             painter = painterResource(R.drawable.line),
             contentDescription = "Back Button",
-            modifier = modifier
-                .padding(8.dp)
-                .fillMaxSize()
+            modifier =
+                modifier
+                    .padding(8.dp)
+                    .fillMaxSize(),
         )
     }
 }
 
 @Composable
-fun PoseCameraScreen(
-    exerciseTitle: String
-) {
+fun PoseCameraScreen(exerciseTitle: String) {
     val viewModel = hiltViewModel<HomeViewModel>()
 
     CameraPreviewView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(550.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(550.dp),
         onPoseDetected = { landmarks ->
             val landmarkInSequence = mutableListOf<Float>()
+            val convertedLandmarkList = mutableListOf<ConvertedLandmark>()
+            var i = 0
+
             landmarks.forEach { landmark ->
                 landmarkInSequence.add(landmark.x())
                 landmarkInSequence.add(landmark.y())
                 landmarkInSequence.add(landmark.z())
-            }
-            val convertedLandmark = landmarks.map { landmark ->
-                ConvertedLandmark(
-                    x = landmark.x(),
-                    y = landmark.y(),
-                    z = landmark.z()
+                val convertedLandmark =
+                    ConvertedLandmark(
+                        x = landmark.x(),
+                        y = landmark.y(),
+                        z = landmark.z(),
+                        visibility = landmark.visibility(),
+                        presence = landmark.presence(),
+                    ).addKeyPoint(i)
+                convertedLandmarkList.add(
+                    convertedLandmark,
                 )
+
+                Log.d("Pose", "Detected ${convertedLandmark.keyPoint?.keyName} ${convertedLandmark.presence} ")
+                i++
             }
 
-            viewModel.sendLandmarkData(exerciseTitle, landmarkInSequence)
+            val convertedLandmark =
+                landmarks.map { landmark ->
+                    ConvertedLandmark(
+                        x = landmark.x(),
+                        y = landmark.y(),
+                        z = landmark.z(),
+                        visibility = landmark.visibility(),
+                        presence = landmark.presence(),
+                    )
+                }
 
-            Log.d("Pose", "Detected ${landmarks.size} landmarks")
-            Log.d("Pose", "Detected $convertedLandmark landmarks")
-
-        }
+//            viewModel.sendLandmarkData(exerciseTitle, landmarkInSequence)
+        },
     )
 }
 
 @Composable
 fun CameraPreviewView(
     modifier: Modifier = Modifier,
-    onPoseDetected: (landmarks: List<NormalizedLandmark>) -> Unit
+    onPoseDetected: (landmarks: List<NormalizedLandmark>) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -241,38 +262,39 @@ fun CameraPreviewView(
 
     val poseHelper = remember { PoseLandmarkerHelper(context) }
 
-    val controller = remember {
-        LifecycleCameraController(context).apply {
-            setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
-            // Enable both preview and image analysis
-            setEnabledUseCases(
-                CameraController.IMAGE_CAPTURE or
-                        CameraController.IMAGE_ANALYSIS
-            )
+    val controller =
+        remember {
+            LifecycleCameraController(context).apply {
+                setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
+                // Enable both preview and image analysis
+                setEnabledUseCases(
+                    CameraController.IMAGE_CAPTURE or
+                        CameraController.IMAGE_ANALYSIS,
+                )
 
-            setImageAnalysisAnalyzer(
-                ContextCompat.getMainExecutor(context)
-            ) { image: ImageProxy ->
-                val currentTime = System.currentTimeMillis()
-                if(currentTime - lastProcessTime.value < 100) {
-                    // Skip processing if the last frame was processed less than 1 second ago
-                    image.close()
-                    return@setImageAnalysisAnalyzer
-                }
-                try {
-                    val bitmap = imageProxyToBitmap(image)
-                    val result = poseHelper.detect(bitmap,currentTime)
-                    result?.landmarks()?.firstOrNull()?.let { landmarks ->
-                        onPoseDetected(landmarks)
+                setImageAnalysisAnalyzer(
+                    ContextCompat.getMainExecutor(context),
+                ) { image: ImageProxy ->
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastProcessTime.value < 100) {
+                        // Skip processing if the last frame was processed less than 1 second ago
+                        image.close()
+                        return@setImageAnalysisAnalyzer
                     }
-                } catch (e: Exception) {
-                    Log.e("CameraPreview", "Error processing image", e)
-                } finally {
-                    image.close()
+                    try {
+                        val bitmap = imageProxyToBitmap(image)
+                        val result = poseHelper.detect(bitmap, currentTime)
+                        result?.landmarks()?.firstOrNull()?.let { landmarks ->
+                            onPoseDetected(landmarks)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("CameraPreview", "Error processing image", e)
+                    } finally {
+                        image.close()
+                    }
                 }
             }
         }
-    }
 
     DisposableEffect(lifecycleOwner) {
         controller.bindToLifecycle(lifecycleOwner)
@@ -289,7 +311,7 @@ fun CameraPreviewView(
                 // Set scale type for better preview
                 scaleType = PreviewView.ScaleType.FILL_CENTER
             }
-        }
+        },
     )
 }
 
@@ -321,7 +343,7 @@ fun imageProxyToBitmap(image: ImageProxy): Bitmap {
 private fun BackButtonPreview() {
     BackButton(
         modifier = Modifier,
-        onBackPressed = {}
+        onBackPressed = {},
     )
 }
 
@@ -330,8 +352,6 @@ private fun BackButtonPreview() {
 private fun CameraScreenPreview() {
     CameraScreen(
         exerciseTitle = "Push Up",
-        onBackPressed = {}
+        onBackPressed = {},
     )
 }
-
-

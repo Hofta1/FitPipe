@@ -12,23 +12,22 @@ import com.binus.fitpipe.home.ui.CameraScreen
 import com.binus.fitpipe.home.ui.HomeScreen
 
 @Composable
-fun AppNavHost(
-    navController: NavHostController = rememberNavController()
-) {
-    val navAction = remember(navController){
-        AppNavAction(navController)
-    }
+fun AppNavHost(navController: NavHostController = rememberNavController()) {
+    val navAction =
+        remember(navController) {
+            AppNavAction(navController)
+        }
     NavHost(navController, startDestination = "home") {
         composable(HOME) {
             HomeScreen(
-                onItemClick = navAction::navigateToCamera
+                onItemClick = navAction::navigateToCamera,
             )
         }
         composable("$CAMERA/{exerciseTitle}") { backStackEntry ->
             val exerciseTitle = backStackEntry.arguments?.getString("exerciseTitle")
             CameraScreen(
                 exerciseTitle = exerciseTitle ?: "",
-                onBackPressed = navAction::onBackPressed
+                onBackPressed = navAction::onBackPressed,
             )
         }
     }

@@ -25,17 +25,14 @@ import com.binus.fitpipe.ui.theme.Yellow50
 import com.example.yourapp.ui.components.FPScaffold
 
 @Composable
-internal fun OnBoardingScreen(
-    onStart: () -> Unit = {},
-) {
+internal fun OnBoardingScreen(onStart: () -> Unit = {}) {
     FitPipeTheme {
         OnBoardingScreen(
             modifier = Modifier,
-            onStart = onStart
+            onStart = onStart,
         )
     }
 }
-
 
 @Composable
 private fun OnBoardingScreen(
@@ -43,16 +40,18 @@ private fun OnBoardingScreen(
     onStart: () -> Unit,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier =
+            modifier
+                .fillMaxSize(),
     ) {
         FadingCircle(
             height = 673,
             width = 581,
         )
         Column(
-            modifier = modifier
-                .fillMaxSize(),
+            modifier =
+                modifier
+                    .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier.size(221.dp))
@@ -60,20 +59,21 @@ private fun OnBoardingScreen(
                 painter = painterResource(R.drawable.pose_tracker_logo),
                 contentDescription = "Pose Tracker Logo",
                 alignment = Alignment.Center,
-                modifier = modifier
-                    .size(306.dp, 306.dp)
-                    .weight(1f)
+                modifier =
+                    modifier
+                        .size(306.dp, 306.dp)
+                        .weight(1f),
             )
 //            Spacer(modifier.size(188.dp))
             OnboardingButton(
-                modifier = Modifier
-                    .weight(1f),
+                modifier =
+                    Modifier
+                        .weight(1f),
                 text = "LET'S START",
                 onStart = onStart,
             )
         }
     }
-
 }
 
 @Composable
@@ -87,21 +87,22 @@ private fun OnboardingButton(
         onClick = onStart,
         content = {
             Box(
-                modifier = Modifier
-                    .background(color = Yellow50)
+                modifier =
+                    Modifier
+                        .background(color = Yellow50),
             ) {
                 Text(
                     text = text,
                     style = Typo.ExtraBoldTwentyFour,
                     color = Black100,
-                    modifier = Modifier
-                        .padding(vertical = 12.dp, horizontal = 58.dp)
+                    modifier =
+                        Modifier
+                            .padding(vertical = 12.dp, horizontal = 58.dp),
                 )
             }
-        }
+        },
     )
 }
-
 
 @Preview
 @Composable
@@ -109,7 +110,7 @@ private fun OnboardingScreenPreview() {
     FitPipeTheme {
         FPScaffold {
             OnBoardingScreen(
-                onStart = {}
+                onStart = {},
             )
         }
     }

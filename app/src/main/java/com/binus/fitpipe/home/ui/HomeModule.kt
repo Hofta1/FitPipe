@@ -11,7 +11,5 @@ import dagger.hilt.android.components.ViewModelComponent
 @InstallIn(ViewModelComponent::class)
 abstract class HomeModule {
     @Binds
-    abstract fun bindHomeRepository(
-        impl: HomeRepositoryImpl
-    ): HomeRepository
+    abstract fun bindHomeRepository(impl: HomeRepositoryImpl): HomeRepository
 }

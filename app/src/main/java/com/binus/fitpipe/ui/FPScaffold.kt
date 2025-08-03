@@ -25,7 +25,7 @@ fun FPScaffold(
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -40,16 +40,17 @@ fun FPScaffold(
             containerColor = backgroundColor,
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
             // We pass the content lambda directly to the real Scaffold.
-            content = content
+            content = content,
         )
         Text(
             text = "Pose Tracker V1.0",
             style = Typo.MediumTwelve,
             color = White80,
-            modifier = Modifier
-                .align(Alignment.BottomCenter) // Pinned to the bottom-center
-                .padding(16.dp)
-                .systemBarsPadding()
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter) // Pinned to the bottom-center
+                    .padding(16.dp)
+                    .systemBarsPadding(),
         )
     }
 }
