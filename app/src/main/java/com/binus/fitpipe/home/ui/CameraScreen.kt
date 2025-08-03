@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.binus.fitpipe.R
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.PoseLandmarkerHelper
+import com.binus.fitpipe.poselandmarker.addKeyPoint
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
 import com.binus.fitpipe.ui.theme.Grey70
@@ -219,28 +220,41 @@ fun PoseCameraScreen(
                 .height(550.dp),
         onPoseDetected = { landmarks ->
             val landmarkInSequence = mutableListOf<Float>()
+            val convertedLandmarkList = mutableListOf<ConvertedLandmark>()
+            var i = 0
+
             landmarks.forEach { landmark ->
-//                if(landmark.presence().orElse(0.0f) < 0.5f) {
-//                    Log.d("Pose", "Landmark presence too low: ${landmark.presence()}")
-//                    return@forEach // Skip landmarks with low presence
-//                }
                 landmarkInSequence.add(landmark.x())
                 landmarkInSequence.add(landmark.y())
                 landmarkInSequence.add(landmark.z())
+                val convertedLandmark =
+                    ConvertedLandmark(
+                        x = landmark.x(),
+                        y = landmark.y(),
+                        z = landmark.z(),
+                        visibility = landmark.visibility(),
+                        presence = landmark.presence(),
+                    ).addKeyPoint(i)
+                convertedLandmarkList.add(
+                    convertedLandmark,
+                )
+
+                Log.d("Pose", "Detected ${convertedLandmark.keyPoint?.keyName} ${convertedLandmark.presence} ")
+                i++
             }
+
             val convertedLandmark =
                 landmarks.map { landmark ->
                     ConvertedLandmark(
                         x = landmark.x(),
                         y = landmark.y(),
                         z = landmark.z(),
+                        visibility = landmark.visibility(),
+                        presence = landmark.presence(),
                     )
                 }
 
-            if (landmarkInSequence.size > 90) viewModel.sendLandmarkData(exerciseTitle, landmarkInSequence)
-
-//            Log.d("Pose", "Detected ${landmarks.size} landmarks")
-//            Log.d("Pose", "Detected $convertedLandmark landmarks")
+//            viewModel.sendLandmarkData(exerciseTitle, landmarkInSequence)
         },
     )
 }

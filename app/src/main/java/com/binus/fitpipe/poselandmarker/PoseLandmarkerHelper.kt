@@ -43,13 +43,17 @@ class PoseLandmarkerHelper(private val context: Context) {
         return poseLandmarker?.detectForVideo(mpImage, currentTime)
     }
 
-    fun normalizeLandmarksConverter(landmarks: List<NormalizedLandmark>) {
-        landmarks.map { landmark ->
-            ConvertedLandmark(
-                x = landmark.x(),
-                y = landmark.y(),
-                z = landmark.z(),
-            )
-        }
+    fun normalizeLandmarksConverter(landmarks: List<NormalizedLandmark>): List<ConvertedLandmark> {
+        val convertedLandmarks =
+            landmarks.map { landmark ->
+                ConvertedLandmark(
+                    x = landmark.x(),
+                    y = landmark.y(),
+                    z = landmark.z(),
+                    visibility = landmark.visibility(),
+                    presence = landmark.presence(),
+                )
+            }
+        return convertedLandmarks
     }
 }
