@@ -12,6 +12,7 @@ daggerHilt = "2.56.2"
 ksp = "2.1.21-2.0.1"
 retrofit = "2.11.0"
 camera = "1.4.2"
+chucker = "4.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +43,8 @@ androidx-camera-view = { group = "androidx.camera", name = "camera-view", versio
 androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", version = "1.5.0-beta01" }
 mediapipe = { group = "com.google.mediapipe", name = "tasks-vision", version = "0.20230731"}
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version = "1.9.0" }
+chucker = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
+chucker-no-op = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
 
 [plugins]
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "12.1.2" }

@@ -17,19 +17,22 @@ fun FadingCircle(
     height: Int,
     width: Int,
 ) {
-    val colorStops = arrayOf(
-        0.0f to Yellow50,
-        1.0f to Green20.copy(alpha = 0f)
-    )
-    val brush = Brush.radialGradient(
-        colorStops = colorStops
-    )
+    val colorStops =
+        arrayOf(
+            0.0f to Yellow50,
+            1.0f to Green20.copy(alpha = 0f),
+        )
+    val brush =
+        Brush.radialGradient(
+            colorStops = colorStops,
+        )
     Box(
-        modifier = Modifier
-            .size(height = height.dp, width = width.dp)
-            .clip(CircleShape)
-            .alpha(0.27f)
-            .background(brush)
+        modifier =
+            Modifier
+                .size(height = height.dp, width = width.dp)
+                .clip(CircleShape)
+                .alpha(0.27f)
+                .background(brush),
     )
 }
 

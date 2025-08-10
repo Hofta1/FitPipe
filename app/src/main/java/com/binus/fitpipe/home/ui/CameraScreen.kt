@@ -1,6 +1,5 @@
 package com.binus.fitpipe.home.ui
 
-import androidx.compose.runtime.*
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -33,8 +32,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,15 +44,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.binus.fitpipe.R
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
-import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
 import com.binus.fitpipe.poselandmarker.PoseLandmarkerHelper
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
@@ -61,6 +62,7 @@ import com.binus.fitpipe.ui.theme.White80
 import com.binus.fitpipe.ui.theme.Yellow50
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import java.io.ByteArrayOutputStream
+import java.util.Locale
 import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 
 @Composable
@@ -72,7 +74,7 @@ internal fun CameraScreen(
         CameraScreen(
             exerciseTitle = exerciseTitle,
             modifier = Modifier,
-            onBackPressed = onBackPressed
+            onBackPressed = onBackPressed,
         )
     }
 }
@@ -85,20 +87,24 @@ private fun CameraScreen(
 ) {
     // Check and request camera permission
     val context = LocalContext.current
+    val viewModel = hiltViewModel<HomeViewModel>()
+    val state = viewModel.uiState.collectAsState()
+    val scanMessage = state.value.scanResponse
     var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
+                Manifest.permission.CAMERA,
+            ) == PackageManager.PERMISSION_GRANTED,
         )
     }
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        hasCameraPermission = isGranted
-    }
+    val launcher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            hasCameraPermission = isGranted
+        }
 
     LaunchedEffect(Unit) {
         if (hasCameraPermission == false) {
@@ -109,8 +115,9 @@ private fun CameraScreen(
     Column {
         Spacer(Modifier.size(75.dp))
         Box(
-            modifier = modifier
-                .fillMaxWidth()
+            modifier =
+                modifier
+                    .fillMaxWidth(),
         ) {
             BackButton { onBackPressed() }
             Text(
@@ -118,55 +125,57 @@ private fun CameraScreen(
                 style = Typo.BoldTwentyFour,
                 color = White80,
                 modifier = modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
 
         // Show camera preview only if permission is granted
         if (hasCameraPermission) {
-            PoseCameraScreen(exerciseTitle)
+            PoseCameraScreen(exerciseTitle, viewModel)
         } else {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(550.dp)
-                    .background(Color.Black),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(550.dp)
+                        .background(Color.Black),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = "Camera permission required",
                     color = White80,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             }
         }
 
         Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .clip(shape = RoundedCornerShape(16.dp))
-                .background(Black70)
-                .padding(vertical = 26.dp)
-                .align(Alignment.CenterHorizontally)
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .clip(shape = RoundedCornerShape(16.dp))
+                    .background(Black70)
+                    .padding(vertical = 26.dp)
+                    .align(Alignment.CenterHorizontally),
         ) {
             Text(
                 text = "Count: 9",
                 style = Typo.MediumEighteen,
                 color = White80,
                 textAlign = TextAlign.Center,
-                modifier = modifier.fillMaxWidth()
+                modifier = modifier.fillMaxWidth(),
             )
             Spacer(modifier.size(14.dp))
             Box(
                 contentAlignment = Alignment.BottomCenter,
-                modifier = modifier.height(36.dp)
+                modifier = modifier.height(36.dp),
             ) {
                 Text(
-                    text = "Feedback Text Long Text Te",
+                    text = scanMessage,
                     style = Typo.BoldTwenty,
                     color = if (true) Yellow50 else Red50, // Replace with actual condition
                     textAlign = TextAlign.Center,
-                    modifier = modifier.fillMaxWidth()
+                    modifier = modifier.fillMaxWidth(),
                 )
             }
         }
@@ -179,61 +188,67 @@ private fun BackButton(
     onBackPressed: () -> Unit,
 ) {
     Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(Grey70)
-            .size(30.dp)
-            .clickable { onBackPressed() },
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .clip(CircleShape)
+                .background(Grey70)
+                .size(30.dp)
+                .clickable { onBackPressed() },
+        contentAlignment = Alignment.Center,
     ) {
         Image(
             painter = painterResource(R.drawable.line),
             contentDescription = "Back Button",
-            modifier = modifier
-                .padding(8.dp)
-                .fillMaxSize()
+            modifier =
+                modifier
+                    .padding(8.dp)
+                    .fillMaxSize(),
         )
     }
 }
 
 @Composable
 fun PoseCameraScreen(
-    exerciseTitle: String
+    exerciseTitle: String,
+    viewModel: HomeViewModel,
 ) {
-    val viewModel = hiltViewModel<HomeViewModel>()
-
     CameraPreviewView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(550.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(550.dp),
         onPoseDetected = { landmarks ->
             val landmarkInSequence = mutableListOf<Float>()
             landmarks.forEach { landmark ->
+//                if(landmark.presence().orElse(0.0f) < 0.5f) {
+//                    Log.d("Pose", "Landmark presence too low: ${landmark.presence()}")
+//                    return@forEach // Skip landmarks with low presence
+//                }
                 landmarkInSequence.add(landmark.x())
                 landmarkInSequence.add(landmark.y())
                 landmarkInSequence.add(landmark.z())
             }
-            val convertedLandmark = landmarks.map { landmark ->
-                ConvertedLandmark(
-                    x = landmark.x(),
-                    y = landmark.y(),
-                    z = landmark.z()
-                )
-            }
+            val convertedLandmark =
+                landmarks.map { landmark ->
+                    ConvertedLandmark(
+                        x = landmark.x(),
+                        y = landmark.y(),
+                        z = landmark.z(),
+                    )
+                }
 
-            viewModel.sendLandmarkData(exerciseTitle, landmarkInSequence)
+            if (landmarkInSequence.size > 90) viewModel.sendLandmarkData(exerciseTitle, landmarkInSequence)
 
-            Log.d("Pose", "Detected ${landmarks.size} landmarks")
-            Log.d("Pose", "Detected $convertedLandmark landmarks")
-
-        }
+//            Log.d("Pose", "Detected ${landmarks.size} landmarks")
+//            Log.d("Pose", "Detected $convertedLandmark landmarks")
+        },
     )
 }
 
 @Composable
 fun CameraPreviewView(
     modifier: Modifier = Modifier,
-    onPoseDetected: (landmarks: List<NormalizedLandmark>) -> Unit
+    onPoseDetected: (landmarks: List<NormalizedLandmark>) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -241,38 +256,39 @@ fun CameraPreviewView(
 
     val poseHelper = remember { PoseLandmarkerHelper(context) }
 
-    val controller = remember {
-        LifecycleCameraController(context).apply {
-            setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
-            // Enable both preview and image analysis
-            setEnabledUseCases(
-                CameraController.IMAGE_CAPTURE or
-                        CameraController.IMAGE_ANALYSIS
-            )
+    val controller =
+        remember {
+            LifecycleCameraController(context).apply {
+                setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
+                // Enable both preview and image analysis
+                setEnabledUseCases(
+                    CameraController.IMAGE_CAPTURE or
+                        CameraController.IMAGE_ANALYSIS,
+                )
 
-            setImageAnalysisAnalyzer(
-                ContextCompat.getMainExecutor(context)
-            ) { image: ImageProxy ->
-                val currentTime = System.currentTimeMillis()
-                if(currentTime - lastProcessTime.value < 100) {
-                    // Skip processing if the last frame was processed less than 1 second ago
-                    image.close()
-                    return@setImageAnalysisAnalyzer
-                }
-                try {
-                    val bitmap = imageProxyToBitmap(image)
-                    val result = poseHelper.detect(bitmap,currentTime)
-                    result?.landmarks()?.firstOrNull()?.let { landmarks ->
-                        onPoseDetected(landmarks)
+                setImageAnalysisAnalyzer(
+                    ContextCompat.getMainExecutor(context),
+                ) { image: ImageProxy ->
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastProcessTime.value < 100) {
+                        // Skip processing if the last frame was processed less than 1 second ago
+                        image.close()
+                        return@setImageAnalysisAnalyzer
                     }
-                } catch (e: Exception) {
-                    Log.e("CameraPreview", "Error processing image", e)
-                } finally {
-                    image.close()
+                    try {
+                        val bitmap = imageProxyToBitmap(image)
+                        val result = poseHelper.detect(bitmap, currentTime)
+                        result?.landmarks()?.firstOrNull()?.let { landmarks ->
+                            onPoseDetected(landmarks)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("CameraPreview", "Error processing image", e)
+                    } finally {
+                        image.close()
+                    }
                 }
             }
         }
-    }
 
     DisposableEffect(lifecycleOwner) {
         controller.bindToLifecycle(lifecycleOwner)
@@ -289,7 +305,7 @@ fun CameraPreviewView(
                 // Set scale type for better preview
                 scaleType = PreviewView.ScaleType.FILL_CENTER
             }
-        }
+        },
     )
 }
 
@@ -321,7 +337,7 @@ fun imageProxyToBitmap(image: ImageProxy): Bitmap {
 private fun BackButtonPreview() {
     BackButton(
         modifier = Modifier,
-        onBackPressed = {}
+        onBackPressed = {},
     )
 }
 
@@ -330,8 +346,6 @@ private fun BackButtonPreview() {
 private fun CameraScreenPreview() {
     CameraScreen(
         exerciseTitle = "Push Up",
-        onBackPressed = {}
+        onBackPressed = {},
     )
 }
-
-
