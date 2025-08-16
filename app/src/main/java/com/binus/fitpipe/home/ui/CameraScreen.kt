@@ -34,6 +34,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,8 +53,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.binus.fitpipe.R
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
+import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 import com.binus.fitpipe.poselandmarker.PoseLandmarkerHelper
-import com.binus.fitpipe.poselandmarker.addKeyPoint
+import com.binus.fitpipe.poselandmarker.addKeyPointEnum
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
 import com.binus.fitpipe.ui.theme.Grey70
@@ -234,12 +236,16 @@ fun PoseCameraScreen(
                         z = landmark.z(),
                         visibility = landmark.visibility(),
                         presence = landmark.presence(),
-                    ).addKeyPoint(i)
+                    ).addKeyPointEnum(i)
                 convertedLandmarkList.add(
                     convertedLandmark,
                 )
 
-                Log.d("Pose", "Detected ${convertedLandmark.keyPoint?.keyName} ${convertedLandmark.presence} ")
+                Log.d("Pose", "Detected ${convertedLandmark.keyPointEnum?.keyName} ${convertedLandmark.presence} ")
+                if(convertedLandmark.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER ||
+                    convertedLandmark.keyPointEnum == MediaPipeKeyPointEnum.RIGHT_SHOULDER) {
+                    Log.d("Pose", "Shoulder detected: ${convertedLandmark.keyPointEnum?.keyName} with presence ${convertedLandmark.presence}")
+                }
                 i++
             }
 
