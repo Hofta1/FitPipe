@@ -4,12 +4,12 @@ import com.google.gson.annotations.SerializedName
 import java.util.Optional
 
 data class ConvertedLandmark(
-    val keyPoint: MediaPipeKeyPoint? = null,
     val x: Float,
     val y: Float,
     val z: Float,
     val visibility: Optional<Float>,
     val presence: Optional<Float>,
+    val keyPointEnum: MediaPipeKeyPointEnum? = null,
 )
 
 data class ConvertedLandmarkList(
@@ -19,50 +19,48 @@ data class ConvertedLandmarkList(
     val landmarks: List<Float>,
 )
 
-fun ConvertedLandmark.addKeyPoint(id: Int): ConvertedLandmark {
-    val keyPoint = mediaPipeKeyPoints.find { it.keyId == id }
-    return this.copy(keyPoint = keyPoint, x = this.x, y = this.y, z = this.z, visibility = this.visibility, presence = this.presence)
+
+fun ConvertedLandmark.addKeyPointEnum(id: Int): ConvertedLandmark {
+    val keyPointEnum = MediaPipeKeyPointEnum.entries.find { it.keyId == id }
+    return this.copy(keyPointEnum = keyPointEnum, x = this.x, y = this.y, z = this.z, visibility = this.visibility, presence = this.presence)
 }
 
-data class MediaPipeKeyPoint(
-    val keyId: Int,
-    val keyName: String,
-)
 
 // to debug
-val mediaPipeKeyPoints =
-    listOf(
-        MediaPipeKeyPoint(0, "NOSE"),
-        MediaPipeKeyPoint(1, "LEFT_EYE_INNER"),
-        MediaPipeKeyPoint(2, "LEFT_EYE"),
-        MediaPipeKeyPoint(3, "LEFT_EYE_OUTER"),
-        MediaPipeKeyPoint(4, "RIGHT_EYE_INNER"),
-        MediaPipeKeyPoint(5, "RIGHT_EYE"),
-        MediaPipeKeyPoint(6, "RIGHT_EYE_OUTER"),
-        MediaPipeKeyPoint(7, "LEFT_EAR"),
-        MediaPipeKeyPoint(8, "RIGHT_EAR"),
-        MediaPipeKeyPoint(9, "LEFT_MOUTH"),
-        MediaPipeKeyPoint(10, "RIGHT_MOUTH"),
-        MediaPipeKeyPoint(11, "LEFT_SHOULDER"),
-        MediaPipeKeyPoint(12, "RIGHT_SHOULDER"),
-        MediaPipeKeyPoint(13, "LEFT_ELBOW"),
-        MediaPipeKeyPoint(14, "RIGHT_ELBOW"),
-        MediaPipeKeyPoint(15, "LEFT_WRIST"),
-        MediaPipeKeyPoint(16, "RIGHT_WRIST"),
-        MediaPipeKeyPoint(17, "LEFT_PINKY"),
-        MediaPipeKeyPoint(18, "RIGHT_PINKY"),
-        MediaPipeKeyPoint(19, "LEFT_INDEX"),
-        MediaPipeKeyPoint(20, "RIGHT_INDEX"),
-        MediaPipeKeyPoint(21, "LEFT_THUMB"),
-        MediaPipeKeyPoint(22, "RIGHT_THUMB"),
-        MediaPipeKeyPoint(23, "LEFT_HIP"),
-        MediaPipeKeyPoint(24, "RIGHT_HIP"),
-        MediaPipeKeyPoint(25, "LEFT_KNEE"),
-        MediaPipeKeyPoint(26, "RIGHT_KNEE"),
-        MediaPipeKeyPoint(27, "LEFT_ANKLE"),
-        MediaPipeKeyPoint(28, "RIGHT_ANKLE"),
-        MediaPipeKeyPoint(29, "LEFT_HEEL"),
-        MediaPipeKeyPoint(30, "RIGHT_HEEL"),
-        MediaPipeKeyPoint(31, "LEFT_FOOT_INDEX"),
-        MediaPipeKeyPoint(32, "RIGHT_FOOT_INDEX"),
-    )
+
+enum class MediaPipeKeyPointEnum(val keyId: Int, val keyName: String) {
+    NOSE(0, "NOSE"),
+    LEFT_EYE_INNER(1, "LEFT_EYE_INNER"),
+    LEFT_EYE(2, "LEFT_EYE"),
+    LEFT_EYE_OUTER(3, "LEFT_EYE_OUTER"),
+    RIGHT_EYE_INNER(4, "RIGHT_EYE_INNER"),
+    RIGHT_EYE(5, "RIGHT_EYE"),
+    RIGHT_EYE_OUTER(6, "RIGHT_EYE_OUTER"),
+    LEFT_EAR(7, "LEFT_EAR"),
+    RIGHT_EAR(8, "RIGHT_EAR"),
+    LEFT_MOUTH(9, "LEFT_MOUTH"),
+    RIGHT_MOUTH(10, "RIGHT_MOUTH"),
+    LEFT_SHOULDER(11, "LEFT_SHOULDER"),
+    RIGHT_SHOULDER(12, "RIGHT_SHOULDER"),
+    LEFT_ELBOW(13, "LEFT_ELBOW"),
+    RIGHT_ELBOW(14, "RIGHT_ELBOW"),
+    LEFT_WRIST(15, "LEFT_WRIST"),
+    RIGHT_WRIST(16, "RIGHT_WRIST"),
+    LEFT_PINKY(17, "LEFT_PINKY"),
+    RIGHT_PINKY(18, "RIGHT_PINKY"),
+    LEFT_INDEX(19, "LEFT_INDEX"),
+    RIGHT_INDEX(20, "RIGHT_INDEX"),
+    LEFT_THUMB(21, "LEFT_THUMB"),
+    RIGHT_THUMB(22, "RIGHT_THUMB"),
+    LEFT_HIP(23, "LEFT_HIP"),
+    RIGHT_HIP(24, "RIGHT_HIP"),
+    LEFT_KNEE(25, "LEFT_KNEE"),
+    RIGHT_KNEE(26, "RIGHT_KNEE"),
+    LEFT_ANKLE(27, "LEFT_ANKLE"),
+    RIGHT_ANKLE(28, "RIGHT_ANKLE"),
+    LEFT_HEEL(29, "LEFT_HEEL"),
+    RIGHT_HEEL(30, "RIGHT_HEEL"),
+    LEFT_FOOT_INDEX(31, "LEFT_FOOT_INDEX"),
+    RIGHT_FOOT_INDEX(32, "RIGHT_FOOT_INDEX")
+
+}
