@@ -23,7 +23,7 @@ class HomeRepositoryImpl
 
 data class MediaPipeScanResponse(
     @SerializedName("status")
-    val status: String,
+    val status: Boolean,
     @SerializedName("feedback")
     val feedback: MediaPipeScanFeedback,
 )
