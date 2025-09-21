@@ -1,7 +1,6 @@
 package com.binus.fitpipe.home.ui
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -36,7 +35,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -215,8 +213,6 @@ private fun BackButton(
 @Composable
 fun PoseCameraScreen(exerciseTitle: String) {
     val viewModel = hiltViewModel<HomeViewModel>()
-    val context = LocalContext.current
-    val poseHelper = remember { PoseLandmarkerHelper(context) }
 
     CameraPreviewView(
         modifier =
@@ -224,11 +220,29 @@ fun PoseCameraScreen(exerciseTitle: String) {
                 .fillMaxWidth()
                 .height(550.dp),
         onPoseDetected = { landmarks ->
-            val convertedLandmark = poseHelper.landmarksConverter(landmarks)
-            viewModel.sendLandmarkData(exerciseTitle, convertedLandmark)
+            val landmarkInSequence = mutableListOf<Float>()
+            val convertedLandmarkList = mutableListOf<ConvertedLandmark>()
+            var i = 0
+
+            landmarks.forEach { landmark ->
+                landmarkInSequence.add(landmark.x())
+                landmarkInSequence.add(landmark.y())
+                landmarkInSequence.add(landmark.z())
+                val convertedLandmark =
+                    ConvertedLandmark(
+                        x = landmark.x(),
+                        y = landmark.y(),
+                        z = landmark.z(),
+                        visibility = landmark.visibility(),
+                        presence = landmark.presence(),
+                    ).addKeyPointEnum(i)
+
+                convertedLandmarkList.add(convertedLandmark)
+                i++
+            }
+
+            viewModel.sendLandmarkData(exerciseTitle, convertedLandmarkList)
         },
-        context = context,
-        poseHelper = poseHelper,
     )
 }
 
@@ -236,11 +250,12 @@ fun PoseCameraScreen(exerciseTitle: String) {
 fun CameraPreviewView(
     modifier: Modifier = Modifier,
     onPoseDetected: (landmarks: List<NormalizedLandmark>) -> Unit,
-    context: Context,
-    poseHelper: PoseLandmarkerHelper,
 ) {
+    val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val lastProcessTime = remember { mutableLongStateOf(0L) }
+    val lastProcessTime = remember { mutableStateOf(0L) }
+
+    val poseHelper = remember { PoseLandmarkerHelper(context) }
 
     val controller =
         remember {
