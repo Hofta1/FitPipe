@@ -237,30 +237,12 @@ fun PoseCameraScreen(
                         visibility = landmark.visibility(),
                         presence = landmark.presence(),
                     ).addKeyPointEnum(i)
-                convertedLandmarkList.add(
-                    convertedLandmark,
-                )
 
-                Log.d("Pose", "Detected ${convertedLandmark.keyPointEnum?.keyName} ${convertedLandmark.presence} ")
-                if(convertedLandmark.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER ||
-                    convertedLandmark.keyPointEnum == MediaPipeKeyPointEnum.RIGHT_SHOULDER) {
-                    Log.d("Pose", "Shoulder detected: ${convertedLandmark.keyPointEnum?.keyName} with presence ${convertedLandmark.presence}")
-                }
+                convertedLandmarkList.add(convertedLandmark)
                 i++
             }
 
-            val convertedLandmark =
-                landmarks.map { landmark ->
-                    ConvertedLandmark(
-                        x = landmark.x(),
-                        y = landmark.y(),
-                        z = landmark.z(),
-                        visibility = landmark.visibility(),
-                        presence = landmark.presence(),
-                    )
-                }
-
-//            viewModel.sendLandmarkData(exerciseTitle, landmarkInSequence)
+            viewModel.sendLandmarkData(exerciseTitle, convertedLandmarkList)
         },
     )
 }
