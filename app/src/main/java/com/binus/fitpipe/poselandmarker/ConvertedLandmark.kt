@@ -19,12 +19,17 @@ data class ConvertedLandmarkList(
     val landmarks: List<Float>,
 )
 
-
 fun ConvertedLandmark.addKeyPointEnum(id: Int): ConvertedLandmark {
     val keyPointEnum = MediaPipeKeyPointEnum.entries.find { it.keyId == id }
-    return this.copy(keyPointEnum = keyPointEnum, x = this.x, y = this.y, z = this.z, visibility = this.visibility, presence = this.presence)
+    return this.copy(
+        keyPointEnum = keyPointEnum,
+        x = this.x,
+        y = this.y,
+        z = this.z,
+        visibility = this.visibility,
+        presence = this.presence,
+    )
 }
-
 
 // to debug
 
@@ -61,6 +66,5 @@ enum class MediaPipeKeyPointEnum(val keyId: Int, val keyName: String) {
     LEFT_HEEL(29, "LEFT_HEEL"),
     RIGHT_HEEL(30, "RIGHT_HEEL"),
     LEFT_FOOT_INDEX(31, "LEFT_FOOT_INDEX"),
-    RIGHT_FOOT_INDEX(32, "RIGHT_FOOT_INDEX")
-
+    RIGHT_FOOT_INDEX(32, "RIGHT_FOOT_INDEX"),
 }

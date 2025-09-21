@@ -2,20 +2,17 @@ package com.binus.fitpipe.home.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.binus.fitpipe.ExerciseKey
 import com.binus.fitpipe.R
 import com.binus.fitpipe.home.data.HomeRepository
 import com.binus.fitpipe.home.data.HomeRowData
 import com.binus.fitpipe.home.data.HomeUiState
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
-import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,61 +21,65 @@ class HomeViewModel
     constructor(
         private val homeRepository: HomeRepository,
     ) : ViewModel() {
-        private val importantPushUpKeyPoints = listOf(
-            MediaPipeKeyPointEnum.NOSE,
-            MediaPipeKeyPointEnum.LEFT_SHOULDER,
-            MediaPipeKeyPointEnum.RIGHT_SHOULDER,
-            MediaPipeKeyPointEnum.LEFT_ELBOW,
-            MediaPipeKeyPointEnum.RIGHT_ELBOW,
-            MediaPipeKeyPointEnum.LEFT_WRIST,
-            MediaPipeKeyPointEnum.RIGHT_WRIST,
-            MediaPipeKeyPointEnum.LEFT_HIP,
-            MediaPipeKeyPointEnum.RIGHT_HIP,
-            MediaPipeKeyPointEnum.LEFT_KNEE,
-            MediaPipeKeyPointEnum.RIGHT_KNEE,
-            MediaPipeKeyPointEnum.LEFT_ANKLE,
-            MediaPipeKeyPointEnum.RIGHT_ANKLE,
-        )
-        private val importantSitUpKeyPoints = listOf(
-            MediaPipeKeyPointEnum.LEFT_SHOULDER,
-            MediaPipeKeyPointEnum.RIGHT_SHOULDER,
-            MediaPipeKeyPointEnum.LEFT_ELBOW,
-            MediaPipeKeyPointEnum.RIGHT_ELBOW,
-            MediaPipeKeyPointEnum.LEFT_HIP,
-            MediaPipeKeyPointEnum.RIGHT_HIP,
-            MediaPipeKeyPointEnum.LEFT_KNEE,
-            MediaPipeKeyPointEnum.RIGHT_KNEE,
-            MediaPipeKeyPointEnum.LEFT_ANKLE,
-            MediaPipeKeyPointEnum.RIGHT_ANKLE,
-        )
-        private val importantJumpingJackKeyPoints = listOf(
-            MediaPipeKeyPointEnum.NOSE,
-            MediaPipeKeyPointEnum.LEFT_SHOULDER,
-            MediaPipeKeyPointEnum.RIGHT_SHOULDER,
-            MediaPipeKeyPointEnum.LEFT_ELBOW,
-            MediaPipeKeyPointEnum.RIGHT_ELBOW,
-            MediaPipeKeyPointEnum.LEFT_WRIST,
-            MediaPipeKeyPointEnum.RIGHT_WRIST,
-            MediaPipeKeyPointEnum.LEFT_HIP,
-            MediaPipeKeyPointEnum.RIGHT_HIP,
-            MediaPipeKeyPointEnum.LEFT_KNEE,
-            MediaPipeKeyPointEnum.RIGHT_KNEE,
-            MediaPipeKeyPointEnum.LEFT_ANKLE,
-            MediaPipeKeyPointEnum.RIGHT_ANKLE,
-        )
-        private val importantSquatKeyPoints = listOf(
-            MediaPipeKeyPointEnum.NOSE,
-            MediaPipeKeyPointEnum.LEFT_SHOULDER,
-            MediaPipeKeyPointEnum.RIGHT_SHOULDER,
-            MediaPipeKeyPointEnum.LEFT_HIP,
-            MediaPipeKeyPointEnum.RIGHT_HIP,
-            MediaPipeKeyPointEnum.LEFT_KNEE,
-            MediaPipeKeyPointEnum.RIGHT_KNEE,
-            MediaPipeKeyPointEnum.LEFT_ANKLE,
-            MediaPipeKeyPointEnum.RIGHT_ANKLE,
-            MediaPipeKeyPointEnum.LEFT_FOOT_INDEX,
-            MediaPipeKeyPointEnum.RIGHT_FOOT_INDEX,
-        )
+        private val importantPushUpKeyPoints =
+            listOf(
+                MediaPipeKeyPointEnum.NOSE,
+                MediaPipeKeyPointEnum.LEFT_SHOULDER,
+                MediaPipeKeyPointEnum.RIGHT_SHOULDER,
+                MediaPipeKeyPointEnum.LEFT_ELBOW,
+                MediaPipeKeyPointEnum.RIGHT_ELBOW,
+                MediaPipeKeyPointEnum.LEFT_WRIST,
+                MediaPipeKeyPointEnum.RIGHT_WRIST,
+                MediaPipeKeyPointEnum.LEFT_HIP,
+                MediaPipeKeyPointEnum.RIGHT_HIP,
+                MediaPipeKeyPointEnum.LEFT_KNEE,
+                MediaPipeKeyPointEnum.RIGHT_KNEE,
+                MediaPipeKeyPointEnum.LEFT_ANKLE,
+                MediaPipeKeyPointEnum.RIGHT_ANKLE,
+            )
+        private val importantSitUpKeyPoints =
+            listOf(
+                MediaPipeKeyPointEnum.LEFT_SHOULDER,
+                MediaPipeKeyPointEnum.RIGHT_SHOULDER,
+                MediaPipeKeyPointEnum.LEFT_ELBOW,
+                MediaPipeKeyPointEnum.RIGHT_ELBOW,
+                MediaPipeKeyPointEnum.LEFT_HIP,
+                MediaPipeKeyPointEnum.RIGHT_HIP,
+                MediaPipeKeyPointEnum.LEFT_KNEE,
+                MediaPipeKeyPointEnum.RIGHT_KNEE,
+                MediaPipeKeyPointEnum.LEFT_ANKLE,
+                MediaPipeKeyPointEnum.RIGHT_ANKLE,
+            )
+        private val importantJumpingJackKeyPoints =
+            listOf(
+                MediaPipeKeyPointEnum.NOSE,
+                MediaPipeKeyPointEnum.LEFT_SHOULDER,
+                MediaPipeKeyPointEnum.RIGHT_SHOULDER,
+                MediaPipeKeyPointEnum.LEFT_ELBOW,
+                MediaPipeKeyPointEnum.RIGHT_ELBOW,
+                MediaPipeKeyPointEnum.LEFT_WRIST,
+                MediaPipeKeyPointEnum.RIGHT_WRIST,
+                MediaPipeKeyPointEnum.LEFT_HIP,
+                MediaPipeKeyPointEnum.RIGHT_HIP,
+                MediaPipeKeyPointEnum.LEFT_KNEE,
+                MediaPipeKeyPointEnum.RIGHT_KNEE,
+                MediaPipeKeyPointEnum.LEFT_ANKLE,
+                MediaPipeKeyPointEnum.RIGHT_ANKLE,
+            )
+        private val importantSquatKeyPoints =
+            listOf(
+                MediaPipeKeyPointEnum.NOSE,
+                MediaPipeKeyPointEnum.LEFT_SHOULDER,
+                MediaPipeKeyPointEnum.RIGHT_SHOULDER,
+                MediaPipeKeyPointEnum.LEFT_HIP,
+                MediaPipeKeyPointEnum.RIGHT_HIP,
+                MediaPipeKeyPointEnum.LEFT_KNEE,
+                MediaPipeKeyPointEnum.RIGHT_KNEE,
+                MediaPipeKeyPointEnum.LEFT_ANKLE,
+                MediaPipeKeyPointEnum.RIGHT_ANKLE,
+                MediaPipeKeyPointEnum.LEFT_FOOT_INDEX,
+                MediaPipeKeyPointEnum.RIGHT_FOOT_INDEX,
+            )
         private val _uiState = MutableStateFlow(HomeUiState())
         val uiState = _uiState.asStateFlow()
 
@@ -120,9 +121,9 @@ class HomeViewModel
 
         fun sendLandmarkData(
             exerciseTitle: String,
-            convertedLandmark: List<ConvertedLandmark>,
+            convertedLandmarks: List<ConvertedLandmark>,
         ) {
-            val shouldSendLandmark = isImportantKeypointPresent(exerciseTitle,convertedLandmark)
+            val shouldSendLandmark = isImportantKeypointPresent(exerciseTitle, convertedLandmarks)
             if (!shouldSendLandmark) {
                 Log.d("HomeViewModel", "Important keypoints missing, not sending data.")
                 return
@@ -144,15 +145,15 @@ class HomeViewModel
 //            }
         }
 
-    private fun convertLandmarkToFloatSequence(landmarks: List<ConvertedLandmark>): List<Float> {
-        val floatSequence = mutableListOf<Float>()
-        landmarks.forEach { landmark ->
-            floatSequence.add(landmark.x)
-            floatSequence.add(landmark.y)
-            floatSequence.add(landmark.z)
+        private fun convertLandmarkToFloatSequence(landmarks: List<ConvertedLandmark>): List<Float> {
+            val floatSequence = mutableListOf<Float>()
+            landmarks.forEach { landmark ->
+                floatSequence.add(landmark.x)
+                floatSequence.add(landmark.y)
+                floatSequence.add(landmark.z)
+            }
+            return floatSequence
         }
-        return floatSequence
-    }
 
         /**
          * Converts the exercise title to an ExerciseKey.
@@ -160,20 +161,22 @@ class HomeViewModel
          */
         private fun isImportantKeypointPresent(
             exerciseTitle: String,
-            landmarks: List<ConvertedLandmark>
+            landmarks: List<ConvertedLandmark>,
         ): Boolean {
             val exerciseKey = convertTitleToKey(exerciseTitle)
-            val importantKeyPoints = when (exerciseKey) {
-                ExerciseKey.push_up -> importantPushUpKeyPoints
-                ExerciseKey.sit_up -> importantSitUpKeyPoints
-                ExerciseKey.jumping_jack -> importantJumpingJackKeyPoints
-                ExerciseKey.squat -> importantSquatKeyPoints
-                else -> return false // Unknown exercise
-            }
-            val lowPresenceLandmarks = landmarks.filter { it.presence.get() < 0.5f }
-            val allImportantKeyPointsPresent = importantKeyPoints.all { keyPointEnum ->
-                lowPresenceLandmarks.none{it.keyPointEnum == keyPointEnum}
-            }
+            val importantKeyPoints =
+                when (exerciseKey) {
+                    ExerciseKey.push_up -> importantPushUpKeyPoints
+                    ExerciseKey.sit_up -> importantSitUpKeyPoints
+                    ExerciseKey.jumping_jack -> importantJumpingJackKeyPoints
+                    ExerciseKey.squat -> importantSquatKeyPoints
+                    else -> return false // Unknown exercise
+                }
+            val lowPresenceLandmarks = landmarks.filter { it.presence.get() < 0.9f }
+            val allImportantKeyPointsPresent =
+                importantKeyPoints.all { keyPointEnum ->
+                    lowPresenceLandmarks.none { it.keyPointEnum == keyPointEnum }
+                }
             return allImportantKeyPointsPresent
         }
 
