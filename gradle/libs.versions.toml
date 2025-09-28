@@ -42,6 +42,7 @@ androidx-camera-view = { group = "androidx.camera", name = "camera-view", versio
 androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", version = "1.5.0-beta01" }
 mediapipe = { group = "com.google.mediapipe", name = "tasks-vision", version = "0.10.26.1"}
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version = "1.10.2" }
+romainguy-kotlin-math = { group = "dev.romainguy", name = "kotlin-math", version = "1.6.0" }
 
 [plugins]
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "12.1.2" }
