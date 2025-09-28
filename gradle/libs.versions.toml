@@ -45,6 +45,7 @@ mediapipe = { group = "com.google.mediapipe", name = "tasks-vision", version = "
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version = "1.10.2" }
 chucker = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
 chucker-no-op = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
+romainguy-kotlin-math = { group = "dev.romainguy", name = "kotlin-math", version = "1.6.0" }
 
 [plugins]
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "12.1.2" }

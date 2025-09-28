@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.compose)
+    implementation(libs.romainguy.kotlin.math)
 
     // MediaPipe
     implementation(libs.mediapipe)

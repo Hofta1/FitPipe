@@ -1,6 +1,7 @@
 package com.binus.fitpipe.poselandmarker
 
 import com.google.gson.annotations.SerializedName
+import dev.romainguy.kotlin.math.Float3
 import java.util.Optional
 
 data class ConvertedLandmark(
@@ -10,7 +11,11 @@ data class ConvertedLandmark(
     val visibility: Optional<Float>,
     val presence: Optional<Float>,
     val keyPointEnum: MediaPipeKeyPointEnum? = null,
-)
+){
+    fun toFloat3(): Float3 {
+        return Float3(x, y, z)
+    }
+}
 
 data class ConvertedLandmarkList(
     @SerializedName("posture")
