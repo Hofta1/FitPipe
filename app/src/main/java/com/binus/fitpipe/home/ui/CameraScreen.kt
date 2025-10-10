@@ -215,7 +215,7 @@ fun PoseCameraScreen(exerciseTitle: String) {
                 .height(550.dp),
         onPoseDetected = { landmarks ->
             val convertedLandmark = poseHelper.landmarksConverter(landmarks)
-            viewModel.sendLandmarkData(exerciseTitle, convertedLandmark)
+            viewModel.saveLandmark(exerciseTitle, convertedLandmark)
         },
         context = context,
         poseHelper = poseHelper,
