@@ -1,0 +1,140 @@
+package com.binus.fitpipe.home.domain.checker
+
+import android.util.Log
+import com.binus.fitpipe.home.domain.data.LandmarkDataManager
+import com.binus.fitpipe.home.domain.state.ExerciseState
+import com.binus.fitpipe.home.domain.state.ExerciseStateManager
+import com.binus.fitpipe.home.domain.utils.AngleCalculator.getAngleBetweenPoints
+import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
+import com.binus.fitpipe.poselandmarker.ConvertedLandmark
+import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
+import kotlin.math.abs
+
+class SquatChecker (
+    private val landmarkDataManager: LandmarkDataManager,
+    private val exerciseStateManager: ExerciseStateManager,
+    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
+) {
+    fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
+        val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
+
+        if (!isFormCorrect(requiredPoints)) {
+            Log.d("SquatChecker", "Knee More Than Foot")
+            return false
+        }
+
+        Log.d("SquatChecker", "Squat form is good")
+        processExerciseState(convertedLandmarks, requiredPoints)
+        return true
+    }
+
+    private fun extractRequiredPoints(landmarks: List<ConvertedLandmark>): SquatPoints? {
+        val nose = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.NOSE }
+        val leftShoulder = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }
+        val leftHip = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_HIP }
+        val leftKnee = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_KNEE }
+        val leftAnkle = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_ANKLE }
+        val leftFoot = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_FOOT_INDEX }
+
+        return if (nose != null && leftShoulder != null && leftHip != null &&
+            leftAnkle != null && leftFoot != null && leftKnee != null) {
+            SquatPoints(nose, leftShoulder, leftHip, leftAnkle, leftFoot, leftKnee)
+        } else null
+    }
+
+    private fun isFormCorrect(points: SquatPoints): Boolean {
+
+        return points.leftKnee.x < points.leftFoot.x
+    }
+
+    private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: SquatPoints) {
+        val hipAngle = getAngleBetweenPoints(
+            points.leftShoulder.toFloat2(),
+            points.leftHip.toFloat2(),
+            points.leftKnee.toFloat2()
+        )
+
+        val kneeAngle = getAngleBetweenPoints(
+            points.leftHip.toFloat2(),
+            points.leftKnee.toFloat2(),
+            points.leftAnkle.toFloat2()
+        )
+
+        when (exerciseStateManager.getCurrentState()) {
+            ExerciseState.WAITING_TO_START -> checkStartingPosition(landmarks, hipAngle, kneeAngle)
+            ExerciseState.STARTED -> checkGoingDown(landmarks, hipAngle, kneeAngle)
+            ExerciseState.GOING_FLEXION -> checkDownMax(landmarks, hipAngle, kneeAngle)
+            ExerciseState.GOING_EXTENSION -> checkUpMax(landmarks, hipAngle, kneeAngle)
+            ExerciseState.EXERCISE_COMPLETED -> handleCompleted()
+            ExerciseState.EXERCISE_FAILED -> handleFailed()
+        }
+    }
+
+    private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
+        val isBodyStraight = kneeAngle.isInTolerance(180f) && hipAngle.isInTolerance(180f)
+        if (isBodyStraight) {
+            exerciseStateManager.updateState(ExerciseState.STARTED)
+            landmarkDataManager.addLandmarks(landmarks)
+            Log.d("SquatChecker", "Squat started")
+        }
+    }
+
+    private fun checkGoingDown(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
+        val hipAngleDifference = abs(hipAngle - landmarkDataManager.getLastHipAngle())
+        val kneeAngleDifference = abs(kneeAngle - landmarkDataManager.getLastKneeAngle())
+        val hipAngleOkay = hipAngle < landmarkDataManager.getLastHipAngle() && hipAngleDifference > 5f
+        val kneeAngleOkay = kneeAngle < landmarkDataManager.getLastKneeAngle() && kneeAngleDifference > 5f
+        if (hipAngleOkay && kneeAngleOkay) {
+            landmarkDataManager.addLandmarks(landmarks)
+            exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
+            Log.d("SquatChecker", "Squat Going down")
+        }
+    }
+
+    private fun checkDownMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
+        val kneeAngleDifference = abs(kneeAngle - landmarkDataManager.getLastKneeAngle())
+        if (hipAngle <= landmarkDataManager.getLastHipAngle() || kneeAngle <= landmarkDataManager.getLastKneeAngle()) {
+            if (hipAngle.isInTolerance(50f) && kneeAngle.isInTolerance(90f)) {
+                exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
+                Log.d("SquatChecker", "Squat going up")
+            }
+            landmarkDataManager.addLandmarks(landmarks)
+        }else if (kneeAngleDifference > 15f) { //when the user goes up again without reaching the down max
+            Log.d("SquatChecker", "Squat failed, not deep enough")
+            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+        }
+    }
+
+    private fun checkUpMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
+        if (hipAngle >= landmarkDataManager.getLastHipAngle() || kneeAngle >= landmarkDataManager.getLastKneeAngle()) {
+            if (hipAngle.isInTolerance(180f) && kneeAngle.isInTolerance(180f)) {
+                exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
+                Log.d("SquatChecker", "Squat completed")
+            }
+            landmarkDataManager.addLandmarks(landmarks)
+        }
+    }
+
+    private fun handleCompleted() {
+        if (landmarkDataManager.getLandmarkCount() < 60) {
+            onExerciseCompleted(landmarkDataManager.getAllLandmarks())
+        } else {
+            Log.d("SitUpChecker", "Too many landmarks: ${landmarkDataManager.getLandmarkCount()}")
+            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+        }
+    }
+
+    private fun handleFailed() {
+        landmarkDataManager.clear()
+        exerciseStateManager.reset()
+    }
+
+    private data class SquatPoints(
+        val nose: ConvertedLandmark,
+        val leftShoulder: ConvertedLandmark,
+        val leftHip: ConvertedLandmark,
+        val leftAnkle: ConvertedLandmark,
+        val leftFoot: ConvertedLandmark,
+        val leftKnee: ConvertedLandmark
+    )
+}
