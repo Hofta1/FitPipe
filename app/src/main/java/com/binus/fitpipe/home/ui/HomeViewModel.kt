@@ -36,6 +36,8 @@ constructor(
     private lateinit var squatChecker: SquatChecker
     private var currentExerciseTitle: String = ""
 
+    private var importantKeyPoints: List<MediaPipeKeyPointEnum> = emptyList()
+
     private fun initializeChecker(exerciseTitle: String) {
         val exerciseKey = convertTitleToKey(exerciseTitle)
         when (exerciseKey) {
@@ -178,8 +180,13 @@ constructor(
             exerciseState.reset()
             initializeChecker(exerciseTitle)
             currentExerciseTitle = exerciseTitle
+            setImportantKeyPoints()
         }
-        val shouldSendLandmark = isImportantKeypointPresent(exerciseTitle, convertedLandmarks)
+
+        Log.d("HomeViewModel", "Nose X ${convertedLandmarks[0].x} Y ${convertedLandmarks[0].y}")
+        Log.d("HomeViewModel", "Left Foot X ${convertedLandmarks[31].x} Y ${convertedLandmarks[31].y}")
+        Log.d("HomeViewModel", "Right Foot X ${convertedLandmarks[32].x} Y ${convertedLandmarks[32].y}")
+        val shouldSendLandmark = isImportantKeypointPresent(convertedLandmarks)
         if (!shouldSendLandmark) {
             Log.d("HomeViewModel", "Important keypoints missing, not sending data.")
             return
@@ -252,24 +259,26 @@ constructor(
      * Returns null if the title does not match any known exercise.
      */
     private fun isImportantKeypointPresent(
-        exerciseTitle: String,
         landmarks: List<ConvertedLandmark>,
     ): Boolean {
-        val exerciseKey = convertTitleToKey(exerciseTitle)
-        val importantKeyPoints =
-            when (exerciseKey) {
-                ExerciseKey.push_up -> importantPushUpKeyPoints
-                ExerciseKey.sit_up -> importantSitUpKeyPoints
-                ExerciseKey.jumping_jack -> importantJumpingJackKeyPoints
-                ExerciseKey.squat -> importantSquatKeyPoints
-                else -> return false // Unknown exercise
-            }
         val lowPresenceLandmarks = landmarks.filter { it.presence.get() < 0.9f }
         val allImportantKeyPointsPresent =
             importantKeyPoints.all { keyPointEnum ->
                 lowPresenceLandmarks.none { it.keyPointEnum == keyPointEnum }
             }
         return allImportantKeyPointsPresent
+    }
+
+    private fun setImportantKeyPoints(){
+        val exerciseKey = convertTitleToKey(currentExerciseTitle)
+        importantKeyPoints =
+            when (exerciseKey) {
+                ExerciseKey.push_up -> importantPushUpKeyPoints
+                ExerciseKey.sit_up -> importantSitUpKeyPoints
+                ExerciseKey.jumping_jack -> importantJumpingJackKeyPoints
+                ExerciseKey.squat -> importantSquatKeyPoints
+                else -> emptyList()
+            }
     }
 
     private fun convertTitleToKey(title: String): ExerciseKey? {

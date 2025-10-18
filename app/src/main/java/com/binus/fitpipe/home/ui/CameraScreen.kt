@@ -242,7 +242,7 @@ fun CameraPreviewView(
     val controller =
         remember {
             LifecycleCameraController(context).apply {
-                setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
+                setCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA)
                 // Enable both preview and image analysis
                 setEnabledUseCases(
                     CameraController.IMAGE_CAPTURE or
