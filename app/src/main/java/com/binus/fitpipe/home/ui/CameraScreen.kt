@@ -3,12 +3,15 @@ package com.binus.fitpipe.home.ui
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.YuvImage
+import android.provider.Settings
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -35,7 +38,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,10 +46,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -64,7 +66,6 @@ import com.binus.fitpipe.ui.theme.White80
 import com.binus.fitpipe.ui.theme.Yellow50
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import java.io.ByteArrayOutputStream
-import java.util.Locale
 import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 
 @Composable
@@ -89,6 +90,33 @@ private fun CameraScreen(
 ) {
     // Check and request camera permission
     val context = LocalContext.current
+
+    val configuration = LocalConfiguration.current
+
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val rotation = windowManager.defaultDisplay.rotation
+
+    if(isAutoRotationEnabled(context) && isLandscape && rotation == 3){
+        PoseScanLayoutScreen(
+            exerciseTitle = exerciseTitle,
+            modifier = modifier,
+            onBackPressed = onBackPressed,
+            context = context,
+        )
+    }else{
+        PleaseRotateScreen(modifier = modifier, exerciseTitle = exerciseTitle)
+    }
+}
+
+@Composable
+private fun PoseScanLayoutScreen(
+    exerciseTitle: String,
+    modifier: Modifier = Modifier,
+    onBackPressed: () -> Unit,
+    context: Context
+){
     val viewModel = hiltViewModel<HomeViewModel>()
     val state = viewModel.uiState.collectAsState()
     val scanMessage = state.value.scanResponse
@@ -100,20 +128,17 @@ private fun CameraScreen(
             ) == PackageManager.PERMISSION_GRANTED,
         )
     }
-
     val launcher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission(),
         ) { isGranted ->
             hasCameraPermission = isGranted
         }
-
     LaunchedEffect(Unit) {
-        if (hasCameraPermission == false) {
+        if (!hasCameraPermission) {
             launcher.launch(Manifest.permission.CAMERA)
         }
     }
-
     Column {
         Spacer(Modifier.size(75.dp))
         Box(
@@ -313,6 +338,17 @@ fun imageProxyToBitmap(image: ImageProxy): Bitmap {
     val yuv = out.toByteArray()
 
     return BitmapFactory.decodeByteArray(yuv, 0, yuv.size)
+}
+
+private fun isAutoRotationEnabled(context: Context): Boolean {
+    return try {
+        Settings.System.getInt(
+            context.contentResolver,
+            Settings.System.ACCELEROMETER_ROTATION
+        ) == 1
+    } catch (e: Settings.SettingNotFoundException) {
+        false
+    }
 }
 
 @ComposePreview
