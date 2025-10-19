@@ -65,6 +65,13 @@ constructor(
             }
 
             ExerciseKey.squat -> {
+                squatChecker = SquatChecker(
+                    landmarkDataManager,
+                    exerciseState,
+                    onExerciseCompleted = { landmarks ->
+                        sendLandmarkData(exerciseTitle, landmarks)
+                    },
+                )
                 // Initialize SquatChecker when implemented
             }
 

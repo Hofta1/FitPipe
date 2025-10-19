@@ -4,7 +4,7 @@ import android.util.Log
 import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseState
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
-import com.binus.fitpipe.home.domain.utils.AngleCalculator.getAngleBetweenPoints
+import com.binus.fitpipe.home.domain.utils.AngleCalculator.get3dAngleBetweenPoints
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
@@ -15,11 +15,25 @@ class SquatChecker (
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
 ) {
+    var statusString = ""
+    private var badFormFrameCount = 0
+    private val BAD_FORM_THRESHOLD = 12
+
+    fun getFormattedStatus(): String {
+        return statusString
+    }
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
 
         if (!isFormCorrect(requiredPoints)) {
             Log.d("SquatChecker", "Knee More Than Foot")
+            badFormFrameCount++
+
+            if (badFormFrameCount >= BAD_FORM_THRESHOLD &&
+                exerciseStateManager.getCurrentState() != ExerciseState.WAITING_TO_START) {
+                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+                Log.d("SquatChecker", "Exercise failed due to bad form")
+            }
             return false
         }
 
@@ -44,20 +58,21 @@ class SquatChecker (
 
     private fun isFormCorrect(points: SquatPoints): Boolean {
 
-        return points.leftKnee.x < points.leftFoot.x
+        return abs(points.leftKnee.x - points.leftFoot.x) < 0.1f ||
+                points.leftKnee.x < points.leftFoot.x
     }
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: SquatPoints) {
-        val hipAngle = getAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2(),
-            points.leftKnee.toFloat2()
+        val hipAngle = get3dAngleBetweenPoints(
+            points.leftShoulder.toFloat3(),
+            points.leftHip.toFloat3(),
+            points.leftKnee.toFloat3()
         )
 
-        val kneeAngle = getAngleBetweenPoints(
-            points.leftHip.toFloat2(),
-            points.leftKnee.toFloat2(),
-            points.leftAnkle.toFloat2()
+        val kneeAngle = get3dAngleBetweenPoints(
+            points.leftHip.toFloat3(),
+            points.leftKnee.toFloat3(),
+            points.leftAnkle.toFloat3()
         )
 
         when (exerciseStateManager.getCurrentState()) {
@@ -93,6 +108,7 @@ class SquatChecker (
 
     private fun checkDownMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
         val kneeAngleDifference = abs(kneeAngle - landmarkDataManager.getLastKneeAngle())
+        Log.d("SquatChecker", "Hip Angle: $hipAngle, Knee Angle: $kneeAngle")
         if (hipAngle <= landmarkDataManager.getLastHipAngle() || kneeAngle <= landmarkDataManager.getLastKneeAngle()) {
             if (hipAngle.isInTolerance(50f) && kneeAngle.isInTolerance(90f)) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
@@ -122,6 +138,8 @@ class SquatChecker (
             Log.d("SitUpChecker", "Too many landmarks: ${landmarkDataManager.getLandmarkCount()}")
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
+        exerciseStateManager.updateState(ExerciseState.WAITING_TO_START)
+        landmarkDataManager.clear()
     }
 
     private fun handleFailed() {

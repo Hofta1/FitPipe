@@ -2,6 +2,7 @@ package com.binus.fitpipe.poselandmarker
 
 import com.google.gson.annotations.SerializedName
 import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import java.util.Optional
 
 data class ConvertedLandmark(
@@ -14,6 +15,9 @@ data class ConvertedLandmark(
 ) {
     fun toFloat2(): Float2 {
         return Float2(x, y)
+    }
+    fun toFloat3(): Float3{
+        return Float3(x, y, z)
     }
 }
 

@@ -4,11 +4,13 @@ import android.util.Log
 import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseState
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
+import com.binus.fitpipe.home.domain.utils.AngleCalculator.get3dAngleBetweenPoints
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.getAngleBetweenPoints
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import kotlin.math.abs
 
 class PushUpChecker(
@@ -45,20 +47,20 @@ class PushUpChecker(
     }
 
     private fun isFormCorrect(points: PushUpPoints): Boolean {
-        val neckAngle = getAngleBetweenPoints(
-            points.nose.toFloat2(),
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2()
+        val neckAngle = get3dAngleBetweenPoints(
+            points.nose.toFloat3(),
+            points.leftShoulder.toFloat3(),
+            points.leftHip.toFloat3()
         )
-        val hipAngle = getAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2(),
-            points.leftAnkle.toFloat2()
+        val hipAngle = get3dAngleBetweenPoints(
+            points.leftShoulder.toFloat3(),
+            points.leftHip.toFloat3(),
+            points.leftAnkle.toFloat3()
         )
-        val bodyAngle = getAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftAnkle.toFloat2(),
-            Float2(points.leftWrist.x, points.leftAnkle.y)
+        val bodyAngle = get3dAngleBetweenPoints(
+            points.leftShoulder.toFloat3(),
+            points.leftAnkle.toFloat3(),
+            Float3(points.leftWrist.x, points.leftAnkle.y, points.leftWrist.z)
         )
 
         val bodyNotTooLow = points.nose.y > points.leftWrist.y
@@ -69,15 +71,15 @@ class PushUpChecker(
     }
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: PushUpPoints) {
-        val elbowAngle = getAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftElbow.toFloat2(),
-            points.leftWrist.toFloat2()
+        val elbowAngle = get3dAngleBetweenPoints(
+            points.leftShoulder.toFloat3(),
+            points.leftElbow.toFloat3(),
+            points.leftWrist.toFloat3()
         )
-        val armAngle = getAngleBetweenPoints(
-            points.leftWrist.toFloat2(),
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2()
+        val armAngle = get3dAngleBetweenPoints(
+            points.leftWrist.toFloat3(),
+            points.leftShoulder.toFloat3(),
+            points.leftHip.toFloat3()
         )
 
         when (exerciseStateManager.getCurrentState()) {

@@ -4,6 +4,7 @@ import android.util.Log
 import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseState
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
+import com.binus.fitpipe.home.domain.utils.AngleCalculator.get3dAngleBetweenPoints
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.getAngleBetweenPoints
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
@@ -59,11 +60,12 @@ class SitUpChecker(
     }
 
     private fun isFormCorrect(points: SitUpPoints): Boolean {
-        val kneeAngle = getAngleBetweenPoints(
-            points.leftHip.toFloat2(),
-            points.leftKnee.toFloat2(),
-            points.leftAnkle.toFloat2()
+        val kneeAngle = get3dAngleBetweenPoints(
+            points.leftHip.toFloat3(),
+            points.leftKnee.toFloat3(),
+            points.leftAnkle.toFloat3()
         )
+        Log.d("SitUpChecker", "Knee Angle: $kneeAngle")
         val kneeAngleCorrect = kneeAngle.isInTolerance(90f, tolerance = 40f)
         val isFeetOnTheGround = abs(points.leftHip.y - points.leftFoot.y) < 0.1f
 
@@ -79,10 +81,10 @@ class SitUpChecker(
     }
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: SitUpPoints) {
-        val hipAngle = getAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2(),
-            points.leftKnee.toFloat2()
+        val hipAngle = get3dAngleBetweenPoints(
+            points.leftShoulder.toFloat3(),
+            points.leftHip.toFloat3(),
+            points.leftKnee.toFloat3()
         )
         Log.d("SitUpChecker", "Hip Angle: $hipAngle")
 
