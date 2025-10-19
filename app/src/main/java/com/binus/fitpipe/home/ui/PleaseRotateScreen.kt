@@ -40,11 +40,13 @@ internal fun PleaseRotateScreen(modifier: Modifier, exerciseTitle: String = "") 
             )
         }
         Text(
-            text = "Please turn on your auto rotate then rotate your device to landscape mode to the right side.",
+            text = "Please turn on your auto rotate",
             style = Typo.BoldTwentyFour,
             color = White80,
-            modifier = modifier.align(Alignment.Center),
-            textAlign = TextAlign.Center
+            modifier = modifier
+                .align(Alignment.Center)
+                .padding(horizontal = 16.dp),
+            textAlign = TextAlign.Center,
         )
     }
 }

@@ -5,7 +5,10 @@ import com.binus.fitpipe.ExerciseKey
 data class HomeUiState(
     val isLoading: Boolean = true,
     val rows: List<HomeRowData> = emptyList(),
-    val scanResponse: String = "",
+    val exerciseCount: Int = 0,
+    val isImportantKeypointPresent: Boolean = false,
+    val formattedStatus: String = "",
+    val fullErrorMessage: MutableList<String> = mutableListOf(),
 )
 
 data class HomeRowData(

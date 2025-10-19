@@ -43,19 +43,63 @@ class PoseLandmarkerHelper(private val context: Context) {
         return poseLandmarker?.detectForVideo(mpImage, currentTime)
     }
 
-    fun landmarksConverter(landmarks: List<NormalizedLandmark>): List<ConvertedLandmark> {
+    fun landmarksConverter(landmarks: List<NormalizedLandmark>, rotation: Int): List<ConvertedLandmark> {
         val convertedLandmarks = mutableListOf<ConvertedLandmark>()
-        landmarks.forEachIndexed { index, landmark ->
-            convertedLandmarks.add(
-                ConvertedLandmark(
-                    x = landmark.x(),
-                    y = landmark.y(),
-                    z = landmark.z(),
-                    visibility = landmark.visibility(),
-                    presence = landmark.presence(),
-                ).addKeyPointEnum(index),
-            )
+        when(rotation){
+            0 -> {
+                landmarks.forEachIndexed { index, landmark ->
+                    convertedLandmarks.add(
+                        ConvertedLandmark(
+                            x = 1f - landmark.y(),
+                            y = landmark.x(),
+                            z = landmark.z(),
+                            visibility = landmark.visibility(),
+                            presence = landmark.presence(),
+                        ).addKeyPointEnum(index),
+                    )
+                }
+            }
+            1 -> {
+                landmarks.forEachIndexed { index, landmark ->
+                    convertedLandmarks.add(
+                        ConvertedLandmark(
+                            x = 1f - landmark.x(),
+                            y = 1f - landmark.y(),
+                            z = landmark.z(),
+                            visibility = landmark.visibility(),
+                            presence = landmark.presence(),
+                        ).addKeyPointEnum(index),
+                    )
+                }
+            }
+            3 -> {
+                landmarks.forEachIndexed { index, landmark ->
+                    convertedLandmarks.add(
+                        ConvertedLandmark(
+                            x = landmark.x(),
+                            y = landmark.y(),
+                            z = landmark.z(),
+                            visibility = landmark.visibility(),
+                            presence = landmark.presence(),
+                        ).addKeyPointEnum(index),
+                    )
+                }
+            }
+            else -> {
+                landmarks.forEachIndexed { index, landmark ->
+                    convertedLandmarks.add(
+                        ConvertedLandmark(
+                            x = landmark.x(),
+                            y = landmark.y(),
+                            z = landmark.z(),
+                            visibility = landmark.visibility(),
+                            presence = landmark.presence(),
+                        ).addKeyPointEnum(index),
+                    )
+                }
+            }
         }
+
         return convertedLandmarks
     }
 }

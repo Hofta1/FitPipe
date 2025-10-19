@@ -183,11 +183,11 @@ constructor(
             setImportantKeyPoints()
         }
 
-        Log.d("HomeViewModel", "Nose X ${convertedLandmarks[0].x} Y ${convertedLandmarks[0].y}")
-        Log.d("HomeViewModel", "Left Foot X ${convertedLandmarks[31].x} Y ${convertedLandmarks[31].y}")
-        Log.d("HomeViewModel", "Right Foot X ${convertedLandmarks[32].x} Y ${convertedLandmarks[32].y}")
-        val shouldSendLandmark = isImportantKeypointPresent(convertedLandmarks)
-        if (!shouldSendLandmark) {
+        val isImportantKeypointPresent = isImportantKeypointPresent(convertedLandmarks)
+        _uiState.update { currentState ->
+            currentState.copy(isImportantKeypointPresent = isImportantKeypointPresent)
+        }
+        if (!isImportantKeypointPresent) {
             Log.d("HomeViewModel", "Important keypoints missing, not sending data.")
             return
         }
@@ -206,6 +206,11 @@ constructor(
 
             ExerciseKey.sit_up -> {
                 sitUpChecker.checkExercise(convertedLandmarks)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        formattedStatus = sitUpChecker.getFormattedStatus()
+                    )
+                }
             }
 
             ExerciseKey.jumping_jack -> {
@@ -228,6 +233,10 @@ constructor(
         exerciseTitle: String,
         convertedLandmarks: List<List<ConvertedLandmark>>,
     ) {
+        _uiState.update {
+            currentState ->
+            currentState.copy(exerciseCount = currentState.exerciseCount + 1)
+        }
 //
 //            val landmarkFloatSequence = convertLandmarkToFloatSequence(convertedLandmark)
 //            val exerciseKey = convertTitleToKey(exerciseTitle)

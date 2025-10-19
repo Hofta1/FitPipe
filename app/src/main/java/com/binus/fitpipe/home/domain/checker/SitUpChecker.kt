@@ -15,14 +15,30 @@ class SitUpChecker(
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
 ) {
+    var statusString = ""
+    private var badFormFrameCount = 0
+    private val BAD_FORM_THRESHOLD = 12
+
+    fun getFormattedStatus(): String {
+        return statusString
+    }
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
 
         if (!isFormCorrect(requiredPoints)) {
             Log.d("SitUpChecker", "Sit Up form is bad")
+            badFormFrameCount++
+
+            if (badFormFrameCount >= BAD_FORM_THRESHOLD &&
+                exerciseStateManager.getCurrentState() != ExerciseState.WAITING_TO_START) {
+                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+                Log.d("SitUpChecker", "Exercise failed due to bad form")
+            }
             return false
         }
 
+        badFormFrameCount = 0
+        statusString = "Form Okay"
         Log.d("SitUpChecker", "Sit Up form is good")
         processExerciseState(convertedLandmarks, requiredPoints)
         return true
@@ -48,8 +64,16 @@ class SitUpChecker(
             points.leftKnee.toFloat2(),
             points.leftAnkle.toFloat2()
         )
-        val kneeAngleCorrect = kneeAngle.isInTolerance(90f)
+        val kneeAngleCorrect = kneeAngle.isInTolerance(90f, tolerance = 40f)
         val isFeetOnTheGround = abs(points.leftHip.y - points.leftFoot.y) < 0.1f
+
+        statusString = if(!kneeAngleCorrect) {
+            "Knees Angle Wrong"
+        } else if(!isFeetOnTheGround) {
+            "Feet Not On Ground"
+        } else {
+            ""
+        }
 
         return kneeAngleCorrect && isFeetOnTheGround
     }
@@ -60,6 +84,7 @@ class SitUpChecker(
             points.leftHip.toFloat2(),
             points.leftKnee.toFloat2()
         )
+        Log.d("SitUpChecker", "Hip Angle: $hipAngle")
 
         when (exerciseStateManager.getCurrentState()) {
             ExerciseState.WAITING_TO_START -> checkStartingPosition(landmarks, hipAngle)
@@ -122,6 +147,7 @@ class SitUpChecker(
     private fun handleFailed() {
         landmarkDataManager.clear()
         exerciseStateManager.reset()
+        badFormFrameCount = 0
     }
 
     private data class SitUpPoints(

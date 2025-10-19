@@ -3,7 +3,7 @@ package com.binus.fitpipe.home.ui
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.Configuration
+import android.database.ContentObserver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
@@ -22,21 +22,22 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -46,24 +47,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.binus.fitpipe.R
+import com.binus.fitpipe.home.data.HomeUiState
+import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.PoseLandmarkerHelper
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
 import com.binus.fitpipe.ui.theme.Grey70
-import com.binus.fitpipe.ui.theme.Red50
 import com.binus.fitpipe.ui.theme.Typo
 import com.binus.fitpipe.ui.theme.White80
-import com.binus.fitpipe.ui.theme.Yellow50
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import java.io.ByteArrayOutputStream
 import androidx.compose.ui.tooling.preview.Preview as ComposePreview
@@ -72,12 +71,16 @@ import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 internal fun CameraScreen(
     exerciseTitle: String,
     onBackPressed: () -> Unit,
+    uiState: HomeUiState,
+    onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
 ) {
     FitPipeTheme {
         CameraScreen(
             exerciseTitle = exerciseTitle,
             modifier = Modifier,
             onBackPressed = onBackPressed,
+            uiState = uiState,
+            onPoseDetected = onPoseDetected,
         )
     }
 }
@@ -87,23 +90,41 @@ private fun CameraScreen(
     exerciseTitle: String,
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit,
+    uiState: HomeUiState,
+    onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
 ) {
     // Check and request camera permission
     val context = LocalContext.current
 
-    val configuration = LocalConfiguration.current
+    var isRotationEnabled by remember { mutableStateOf(isAutoRotationEnabled(context)) }
 
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    DisposableEffect(context) {
+        val contentResolver = context.contentResolver
+        val observer = object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                isRotationEnabled = isAutoRotationEnabled(context)
+            }
+        }
 
-    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    val rotation = windowManager.defaultDisplay.rotation
+        contentResolver.registerContentObserver(
+            Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION),
+            false,
+            observer
+        )
 
-    if(isAutoRotationEnabled(context) && isLandscape && rotation == 3){
+        onDispose {
+            contentResolver.unregisterContentObserver(observer)
+        }
+    }
+
+    if(isRotationEnabled){
         PoseScanLayoutScreen(
             exerciseTitle = exerciseTitle,
             modifier = modifier,
             onBackPressed = onBackPressed,
             context = context,
+            uiState = uiState,
+            onPoseDetected = onPoseDetected,
         )
     }else{
         PleaseRotateScreen(modifier = modifier, exerciseTitle = exerciseTitle)
@@ -115,11 +136,14 @@ private fun PoseScanLayoutScreen(
     exerciseTitle: String,
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit,
-    context: Context
+    context: Context,
+    uiState: HomeUiState,
+    onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
 ){
-    val viewModel = hiltViewModel<HomeViewModel>()
-    val state = viewModel.uiState.collectAsState()
-    val scanMessage = state.value.scanResponse
+    val formattedStatus = uiState.formattedStatus
+    val exerciseCount = uiState.exerciseCount
+    val isImportantKeypointPresent = uiState.isImportantKeypointPresent
+
     var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -139,26 +163,13 @@ private fun PoseScanLayoutScreen(
             launcher.launch(Manifest.permission.CAMERA)
         }
     }
-    Column {
-        Spacer(Modifier.size(75.dp))
-        Box(
-            modifier =
-                modifier
-                    .fillMaxWidth(),
-        ) {
-            BackButton { onBackPressed() }
-            Text(
-                text = exerciseTitle,
-                style = Typo.BoldTwentyFour,
-                color = White80,
-                modifier = modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
-        }
 
+    Box(
+        modifier = modifier.fillMaxSize(),
+    ) {
         // Show camera preview only if permission is granted
         if (hasCameraPermission) {
-            PoseCameraScreen(exerciseTitle)
+            PoseCameraScreen(exerciseTitle, context, onPoseDetected)
         } else {
             Box(
                 modifier =
@@ -176,34 +187,59 @@ private fun PoseScanLayoutScreen(
             }
         }
 
-        Column(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .clip(shape = RoundedCornerShape(16.dp))
-                    .background(Black70)
-                    .padding(vertical = 26.dp)
-                    .align(Alignment.CenterHorizontally),
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+                .systemBarsPadding()
+                .padding(horizontal = 16.dp),
         ) {
-            Text(
-                text = "Count: 9",
-                style = Typo.MediumEighteen,
-                color = White80,
-                textAlign = TextAlign.Center,
-                modifier = modifier.fillMaxWidth(),
-            )
-            Spacer(modifier.size(14.dp))
-            Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = modifier.height(36.dp),
-            ) {
-                Text(
-                    text = scanMessage,
-                    style = Typo.BoldTwenty,
-                    color = if (true) Yellow50 else Red50, // Replace with actual condition
-                    textAlign = TextAlign.Center,
+            Column {
+                Row (
                     modifier = modifier.fillMaxWidth(),
-                )
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    BackButton { onBackPressed() }
+                    Text(
+                        text = exerciseTitle,
+                        style = Typo.BoldTwentyFour,
+                        color = White80,
+                        textAlign = TextAlign.Center,
+                    )
+                    Text(
+                        text = "Count: $exerciseCount",
+                        style = Typo.MediumEighteen,
+                        color = White80,
+                        textAlign = TextAlign.Center,
+                        modifier = modifier
+                            .background(
+                                color = Black70,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(8.dp),
+                    )
+                }
+                Row {
+                    Box(
+                        modifier = modifier.size(20.dp)
+                            .background(
+                                if (isImportantKeypointPresent) Color.Green else Color.Red,
+                                shape = CircleShape
+                            )
+                    )
+                    Text(
+                        text = formattedStatus,
+                        style = Typo.MediumSixteen,
+                        color = White80,
+                        textAlign = TextAlign.Center,
+                        modifier = modifier
+                            .background(
+                                color = Black70,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(start = 8.dp)
+                    )
+                }
             }
         }
     }
@@ -235,19 +271,22 @@ private fun BackButton(
 }
 
 @Composable
-fun PoseCameraScreen(exerciseTitle: String) {
-    val viewModel = hiltViewModel<HomeViewModel>()
-    val context = LocalContext.current
+fun PoseCameraScreen(
+    exerciseTitle: String,
+    context: Context,
+    onPoseDetected: (String, List<ConvertedLandmark>) -> Unit
+) {
     val poseHelper = remember { PoseLandmarkerHelper(context) }
+
+    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    val rotation = windowManager.defaultDisplay.rotation
 
     CameraPreviewView(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(550.dp),
+            Modifier.fillMaxSize(),
         onPoseDetected = { landmarks ->
-            val convertedLandmark = poseHelper.landmarksConverter(landmarks)
-            viewModel.saveLandmark(exerciseTitle, convertedLandmark)
+            val convertedLandmark = poseHelper.landmarksConverter(landmarks, rotation)
+            onPoseDetected(exerciseTitle, convertedLandmark)
         },
         context = context,
         poseHelper = poseHelper,
@@ -366,5 +405,19 @@ private fun CameraScreenPreview() {
     CameraScreen(
         exerciseTitle = "Push Up",
         onBackPressed = {},
+        uiState = HomeUiState(),
+        onPoseDetected = { _, _ -> },
+    )
+}
+
+@ComposePreview
+@Composable
+private fun ScanPosePreview() {
+    PoseScanLayoutScreen(
+        exerciseTitle = "Push Up",
+        onBackPressed = {},
+        context = LocalContext.current,
+        uiState = HomeUiState(),
+        onPoseDetected = { _, _ -> },
     )
 }
