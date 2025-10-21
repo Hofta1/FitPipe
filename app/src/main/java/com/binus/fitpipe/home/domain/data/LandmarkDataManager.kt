@@ -1,6 +1,6 @@
 package com.binus.fitpipe.home.domain.data
 
-import com.binus.fitpipe.home.domain.utils.AngleCalculator.getAngleBetweenPoints
+import com.binus.fitpipe.home.domain.utils.AngleCalculator.get2dAngleBetweenPoints
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 
@@ -18,7 +18,7 @@ class LandmarkDataManager {
         val lastWrist = lastLandmarkList?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_WRIST }
 
         return if (lastShoulder != null && lastElbow != null && lastWrist != null) {
-            getAngleBetweenPoints(
+            get2dAngleBetweenPoints(
                 lastShoulder.toFloat2(),
                 lastElbow.toFloat2(),
                 lastWrist.toFloat2(),
@@ -35,7 +35,7 @@ class LandmarkDataManager {
         val leftKnee = lastLandmarkList?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_KNEE }
 
         return if (lastShoulder != null && lastHip != null && leftKnee != null) {
-            getAngleBetweenPoints(
+            get2dAngleBetweenPoints(
                 lastShoulder.toFloat2(),
                 lastHip.toFloat2(),
                 leftKnee.toFloat2(),
@@ -52,7 +52,7 @@ class LandmarkDataManager {
         val leftAnkle = lastLandmarkList?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_ANKLE }
 
         return if (lastHip != null && leftKnee != null && leftAnkle != null) {
-            getAngleBetweenPoints(
+            get2dAngleBetweenPoints(
                 lastHip.toFloat2(),
                 leftKnee.toFloat2(),
                 leftAnkle.toFloat2(),

@@ -5,11 +5,9 @@ import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseState
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.get3dAngleBetweenPoints
-import com.binus.fitpipe.home.domain.utils.AngleCalculator.getAngleBetweenPoints
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
-import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
 import kotlin.math.abs
 

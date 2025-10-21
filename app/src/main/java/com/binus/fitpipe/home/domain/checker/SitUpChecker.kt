@@ -5,7 +5,6 @@ import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseState
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.get3dAngleBetweenPoints
-import com.binus.fitpipe.home.domain.utils.AngleCalculator.getAngleBetweenPoints
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
@@ -66,21 +65,24 @@ class SitUpChecker(
     }
 
     private fun isFormCorrect(points: SitUpPoints): Boolean {
+        val idealKneeAngle = 80f
         val kneeAngle = get3dAngleBetweenPoints(
             points.leftHip.toFloat3(),
             points.leftKnee.toFloat3(),
             points.leftAnkle.toFloat3()
         )
         Log.d("SitUpChecker", "Knee Angle: $kneeAngle")
-        val kneeAngleCorrect = kneeAngle.isInTolerance(90f, tolerance = 40f)
+        val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 40f)
         val isFeetOnTheGround = abs(points.leftHip.y - points.leftFoot.y) < 0.1f
 
-        statusString = if(!kneeAngleCorrect) {
-            "Knees Angle Wrong"
+        if(!kneeAngleCorrect) {
+            statusString = if(kneeAngle > idealKneeAngle) {
+                "Knees Not Bent Enough"
+            }else{
+                "Knees Bent Too Much"
+            }
         } else if(!isFeetOnTheGround) {
-            "Feet Not On Ground"
-        } else {
-            ""
+            statusString = "Feet Not On Ground"
         }
 
         return kneeAngleCorrect && isFeetOnTheGround

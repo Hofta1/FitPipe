@@ -6,7 +6,7 @@ import kotlin.math.acos
 import kotlin.math.sqrt
 
 object AngleCalculator {
-    private const val ANGLE_TOLERANCE = 40f
+    private const val ANGLE_TOLERANCE = 20f
 
     /**
      * Calculates the angle between three points, where p2 is the vertex of the angle.
@@ -15,7 +15,7 @@ object AngleCalculator {
      * @param p3 Third point
      * @return Angle in degrees
      */
-    fun getAngleBetweenPoints(
+    fun get2dAngleBetweenPoints(
         p1: Float2,
         p2: Float2,
         p3: Float2,
