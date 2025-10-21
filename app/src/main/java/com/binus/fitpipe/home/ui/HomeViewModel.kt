@@ -192,7 +192,10 @@ constructor(
 
         val isImportantKeypointPresent = isImportantKeypointPresent(convertedLandmarks)
         _uiState.update { currentState ->
-            currentState.copy(isImportantKeypointPresent = isImportantKeypointPresent)
+            currentState.copy(
+                isImportantKeypointPresent = isImportantKeypointPresent,
+                formattedStatusString = "All keypoints present",
+            )
         }
         if (!isImportantKeypointPresent) {
             Log.d("HomeViewModel", "Important keypoints missing, not sending data.")
@@ -209,13 +212,20 @@ constructor(
         when (exerciseKey) {
             ExerciseKey.push_up -> {
                 pushUpChecker.checkExercise(convertedLandmarks)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        formattedStatusString = pushUpChecker.getFormattedStatus(),
+                        isFormOkay = pushUpChecker.getFormStatus(),
+                    )
+                }
             }
 
             ExerciseKey.sit_up -> {
                 sitUpChecker.checkExercise(convertedLandmarks)
                 _uiState.update { currentState ->
                     currentState.copy(
-                        formattedStatus = sitUpChecker.getFormattedStatus()
+                        formattedStatusString = sitUpChecker.getFormattedStatus(),
+                        isFormOkay = sitUpChecker.getFormStatus(),
                     )
                 }
             }
@@ -227,6 +237,12 @@ constructor(
 
             ExerciseKey.squat -> {
                 squatChecker.checkExercise(convertedLandmarks)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        formattedStatusString = squatChecker.getFormattedStatus(),
+                        isFormOkay = squatChecker.getFormStatus(),
+                    )
+                }
                 // Implement squat angle checks if needed
             }
 

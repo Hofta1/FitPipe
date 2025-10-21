@@ -16,6 +16,7 @@ class SitUpChecker(
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
 ) {
+    var isFormOkay = false
     var statusString = ""
     private var badFormFrameCount = 0
     private val BAD_FORM_THRESHOLD = 12
@@ -23,10 +24,15 @@ class SitUpChecker(
     fun getFormattedStatus(): String {
         return statusString
     }
+
+    fun getFormStatus(): Boolean {
+        return isFormOkay
+    }
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
 
         if (!isFormCorrect(requiredPoints)) {
+            isFormOkay = false
             Log.d("SitUpChecker", "Sit Up form is bad")
             badFormFrameCount++
 
@@ -37,9 +43,9 @@ class SitUpChecker(
             }
             return false
         }
+        isFormOkay = true
 
         badFormFrameCount = 0
-        statusString = "Form Okay"
         Log.d("SitUpChecker", "Sit Up form is good")
         processExerciseState(convertedLandmarks, requiredPoints)
         return true

@@ -15,6 +15,7 @@ class SquatChecker (
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
 ) {
+    var isFormOkay = false
     var statusString = ""
     private var badFormFrameCount = 0
     private val BAD_FORM_THRESHOLD = 12
@@ -22,11 +23,16 @@ class SquatChecker (
     fun getFormattedStatus(): String {
         return statusString
     }
+
+    fun getFormStatus(): Boolean {
+        return isFormOkay
+    }
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
 
         if (!isFormCorrect(requiredPoints)) {
-            Log.d("SquatChecker", "Knee More Than Foot")
+            statusString = "Knee over Toe"
+            isFormOkay = false
             badFormFrameCount++
 
             if (badFormFrameCount >= BAD_FORM_THRESHOLD &&
@@ -37,6 +43,7 @@ class SquatChecker (
             return false
         }
 
+        isFormOkay = true
         Log.d("SquatChecker", "Squat form is good")
         processExerciseState(convertedLandmarks, requiredPoints)
         return true
@@ -145,6 +152,7 @@ class SquatChecker (
     private fun handleFailed() {
         landmarkDataManager.clear()
         exerciseStateManager.reset()
+        badFormFrameCount = 0
     }
 
     private data class SquatPoints(

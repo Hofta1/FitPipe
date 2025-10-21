@@ -7,8 +7,9 @@ data class HomeUiState(
     val rows: List<HomeRowData> = emptyList(),
     val exerciseCount: Int = 0,
     val isImportantKeypointPresent: Boolean = false,
-    val formattedStatus: String = "",
+    val formattedStatusString: String = "",
     val fullErrorMessage: MutableList<String> = mutableListOf(),
+    val isFormOkay: Boolean = true,
 )
 
 data class HomeRowData(

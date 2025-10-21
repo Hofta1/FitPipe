@@ -140,9 +140,10 @@ private fun PoseScanLayoutScreen(
     uiState: HomeUiState,
     onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
 ){
-    val formattedStatus = uiState.formattedStatus
+    val formattedStatus = uiState.formattedStatusString
     val exerciseCount = uiState.exerciseCount
     val isImportantKeypointPresent = uiState.isImportantKeypointPresent
+    val isFormOkay = uiState.isFormOkay
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -223,7 +224,7 @@ private fun PoseScanLayoutScreen(
                     Box(
                         modifier = modifier.size(20.dp)
                             .background(
-                                if (isImportantKeypointPresent) Color.Green else Color.Red,
+                                if (isImportantKeypointPresent && isFormOkay) Color.Green else Color.Red,
                                 shape = CircleShape
                             )
                     )
