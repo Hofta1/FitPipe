@@ -2,6 +2,7 @@ package com.binus.fitpipe.home.ui
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.binus.fitpipe.ExerciseKey
 import com.binus.fitpipe.R
 import com.binus.fitpipe.home.data.HomeRepository
@@ -13,11 +14,13 @@ import com.binus.fitpipe.home.domain.checker.SquatChecker
 import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
+import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -260,20 +263,28 @@ constructor(
             currentState ->
             currentState.copy(exerciseCount = currentState.exerciseCount + 1)
         }
-//
-//            val landmarkFloatSequence = convertLandmarkToFloatSequence(convertedLandmark)
-//            val exerciseKey = convertTitleToKey(exerciseTitle)
-//            viewModelScope.launch {
-//                val result = homeRepository.sendPoseLandmark(ConvertedLandmarkList(exerciseKey.toString(), landmarkFloatSequence))
-//                result.onSuccess {
-//                    // Handle success, e.g., show a success message or update UI
-//                    val data = result.getOrNull()
-//                    Log.d("HomeViewModel", "Pose landmark sent successfully: $data")
-//                }.onFailure { exception ->
-//                    // Handle failure, e.g., show an error message
-//                    Log.d("HomeViewModel", "Failed to send pose landmark: ${exception.message}")
-//                }
-//            }
+        val floatLandmarkList = mutableListOf<List<Float>>()
+        convertedLandmarks.forEach { convertedLandmark->
+            floatLandmarkList.add(convertLandmarkToFloatSequence(convertedLandmark))
+        }
+        Log.d("HomeViewModel", "Sending landmark data for $floatLandmarkList")
+            val exerciseKey = convertTitleToKey(exerciseTitle)
+            viewModelScope.launch {
+                val result = homeRepository.sendPoseLandmark(
+                    ConvertedLandmarkList(
+                        exerciseKey.toString(),
+                        floatLandmarkList
+                    )
+                )
+                result.onSuccess {
+                    // Handle success, e.g., show a success message or update UI
+                    val data = result.getOrNull()
+                    Log.d("HomeViewModel", "Pose landmark sent successfully: $data")
+                }.onFailure { exception ->
+                    // Handle failure, e.g., show an error message
+                    Log.d("HomeViewModel", "Failed to send pose landmark: ${exception.message}")
+                }
+            }
     }
 
     private fun convertLandmarkToFloatSequence(landmarks: List<ConvertedLandmark>): List<Float> {

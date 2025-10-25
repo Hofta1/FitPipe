@@ -25,7 +25,7 @@ data class ConvertedLandmarkList(
     @SerializedName("posture")
     val poseKey: String,
     @SerializedName("mediapipe")
-    val landmarks: List<Float>,
+    val landmarks: List<List<Float>>,
 )
 
 fun ConvertedLandmark.addKeyPointEnum(id: Int): ConvertedLandmark {

@@ -68,13 +68,13 @@ class SquatChecker (
             points.leftHip.toFloat2(),
             points.leftKnee.toFloat2()
         )
-        if(hipAngle < 40f) statusString = "Keep your back straighter"
+        if(hipAngle < 50f) statusString = "Keep your back straighter"
 
         val kneeOverFoot = abs(points.leftKnee.x - points.leftFoot.x) < 0.1f ||
                 points.leftKnee.x < points.leftFoot.x
         if (kneeOverFoot) statusString = "Knee can't be over foot"
 
-        return hipAngle > 40f && kneeOverFoot
+        return hipAngle > 50f && kneeOverFoot
     }
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: SquatPoints) {
@@ -83,7 +83,6 @@ class SquatChecker (
             points.leftHip.toFloat2(),
             points.leftKnee.toFloat2()
         )
-        Log.d("SquatChecker", "Hip Angle: $hipAngle")
 
         val kneeAngle = get2dAngleBetweenPoints(
             points.leftHip.toFloat2(),
@@ -123,7 +122,6 @@ class SquatChecker (
     }
 
     private fun checkDownMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
-        Log.d("SquatChecker", "Hip Angle: $hipAngle, Knee Angle: $kneeAngle")
         if (hipAngle <= landmarkDataManager.getLastHipAngle() || kneeAngle <= landmarkDataManager.getLastKneeAngle()) {
             if (hipAngle < 70f && kneeAngle < 85f) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)

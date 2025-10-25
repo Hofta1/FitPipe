@@ -72,7 +72,7 @@ class SitUpChecker(
             points.leftAnkle.toFloat3()
         )
         Log.d("SitUpChecker", "Knee Angle: $kneeAngle")
-        val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 40f)
+        val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 60f)
         val isFeetOnTheGround = abs(points.leftHip.y - points.leftFoot.y) < 0.1f
 
         if(!kneeAngleCorrect) {
@@ -120,6 +120,10 @@ class SitUpChecker(
             landmarkDataManager.addLandmarks(landmarks)
             exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
             Log.d("SitUpChecker", "Sit Up Going Up")
+        }else if(hipAngle > 130f){
+            // User going back to starting position without completing the sit up
+            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+            statusString = "Did not complete the sit up"
         }
     }
 
