@@ -62,19 +62,21 @@ class SquatChecker (
     }
 
     private fun isFormCorrect(points: SquatPoints): Boolean {
+        var isShoulderDifferenceBig = false
+        if(landmarkDataManager.getLandmarkCount() != 0){
+            val firstShoulderXFloat = landmarkDataManager.getFirstShoulderX()
+            val currentShoulderXFloat = points.leftShoulder.x
+            val shoulderXDifference = abs(currentShoulderXFloat - firstShoulderXFloat)
+            isShoulderDifferenceBig = shoulderXDifference > 0.05f
+            Log.d("SquatChecker", "shoulder difference: $shoulderXDifference")
+        }
 
-        val hipAngle = get2dAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2(),
-            points.leftKnee.toFloat2()
-        )
-        if(hipAngle < 50f) statusString = "Keep your back straighter"
+        val kneeOverFoot = points.leftKnee.x > points.leftFoot.x + 0.05f
+        if (kneeOverFoot) {
+            statusString = "Knee can't be over foot"
+        }
 
-        val kneeOverFoot = abs(points.leftKnee.x - points.leftFoot.x) < 0.1f ||
-                points.leftKnee.x < points.leftFoot.x
-        if (kneeOverFoot) statusString = "Knee can't be over foot"
-
-        return hipAngle > 50f && kneeOverFoot
+        return !isShoulderDifferenceBig && !kneeOverFoot
     }
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: SquatPoints) {
