@@ -45,7 +45,6 @@ class SitUpChecker(
         isFormOkay = true
 
         badFormFrameCount = 0
-        Log.d("SitUpChecker", "Sit Up form is good")
         processExerciseState(convertedLandmarks, requiredPoints)
         return true
     }
@@ -71,7 +70,6 @@ class SitUpChecker(
             points.leftKnee.toFloat3(),
             points.leftAnkle.toFloat3()
         )
-        Log.d("SitUpChecker", "Knee Angle: $kneeAngle")
         val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 60f)
         val isFeetOnTheGround = abs(points.leftHip.y - points.leftFoot.y) < 0.1f
 
@@ -94,7 +92,6 @@ class SitUpChecker(
             points.leftHip.toFloat3(),
             points.leftKnee.toFloat3()
         )
-        Log.d("SitUpChecker", "Hip Angle: $hipAngle")
 
         when (exerciseStateManager.getCurrentState()) {
             ExerciseState.WAITING_TO_START -> checkStartingPosition(landmarks, hipAngle)
@@ -107,7 +104,7 @@ class SitUpChecker(
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, hipAngle: Float) {
-        if (hipAngle.isInTolerance(130f)) {
+        if (hipAngle.isInTolerance(130f, tolerance = 40f)) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
             Log.d("SitUpChecker", "Sit Up started")
@@ -140,7 +137,7 @@ class SitUpChecker(
     private fun checkDownMax(landmarks: List<ConvertedLandmark>, hipAngle: Float) {
         if (hipAngle >= landmarkDataManager.getLastHipAngle()) {
             landmarkDataManager.addLandmarks(landmarks)
-            if (hipAngle.isInTolerance(130f)) {
+            if (hipAngle.isInTolerance(landmarkDataManager.getFirstHipAngle())) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("SitUpChecker", "Sit Up completed")
             }

@@ -73,4 +73,22 @@ class LandmarkDataManager {
     fun getFirstShoulderX(): Float{
         return landmarkList.firstOrNull()?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }?.toFloat2()?.x ?: 0f
     }
+
+    fun getFirstHipAngle(): Float {
+        val firstLandmark = landmarkList.firstOrNull()
+        val firstShoulder =
+            firstLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }
+        val firstHip = firstLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_HIP }
+        val firstKnee = firstLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_KNEE }
+
+        return if (firstShoulder != null && firstHip != null && firstKnee != null) {
+            get2dAngleBetweenPoints(
+                firstShoulder.toFloat2(),
+                firstHip.toFloat2(),
+                firstKnee.toFloat2(),
+            )
+        } else {
+            0f
+        }
+    }
 }
