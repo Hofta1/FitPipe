@@ -82,7 +82,9 @@ dependencies {
     implementation(libs.romainguy.kotlin.math)
 
     // MediaPipe
-    implementation(libs.mediapipe)
+    implementation(libs.mediapipe.tasks.vision)
+    implementation(libs.mediapipe.framework)
+    implementation(libs.mediapipe.framework.image)
 
     // Coroutine
     implementation(libs.kotlinx.coroutines.android)

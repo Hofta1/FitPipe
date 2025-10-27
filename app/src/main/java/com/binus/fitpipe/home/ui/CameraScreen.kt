@@ -14,7 +14,9 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
@@ -294,6 +296,7 @@ fun PoseCameraScreen(
     )
 }
 
+@OptIn(ExperimentalGetImage::class)
 @Composable
 fun CameraPreviewView(
     modifier: Modifier = Modifier,
@@ -324,10 +327,12 @@ fun CameraPreviewView(
                         return@setImageAnalysisAnalyzer
                     }
                     try {
-                        val bitmap = imageProxyToBitmap(image)
-                        val result = poseHelper.detect(bitmap, currentTime)
-                        result?.landmarks()?.firstOrNull()?.let { landmarks ->
-                            onPoseDetected(landmarks)
+                        val image = image.image
+                        image?.let {
+                            val result = poseHelper.detect(image, currentTime)
+                            result?.landmarks()?.firstOrNull()?.let { landmarks ->
+                                onPoseDetected(landmarks)
+                            }
                         }
                     } catch (e: Exception) {
                         Log.e("CameraPreview", "Error processing image", e)
