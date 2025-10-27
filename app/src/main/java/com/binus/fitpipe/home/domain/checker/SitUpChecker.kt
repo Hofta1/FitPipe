@@ -9,6 +9,7 @@ import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 import kotlin.math.abs
+import kotlin.text.get
 
 class SitUpChecker(
     private val landmarkDataManager: LandmarkDataManager,
@@ -37,17 +38,63 @@ class SitUpChecker(
     }
 
     private fun extractRequiredPoints(landmarks: List<ConvertedLandmark>): SitUpPoints? {
-        val nose = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.NOSE }
-        val leftShoulder = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }
-        val leftHip = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_HIP }
-        val leftAnkle = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_ANKLE }
-        val leftFoot = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_FOOT_INDEX }
-        val leftKnee = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_KNEE }
+        val nose = landmarks[MediaPipeKeyPointEnum.NOSE.keyId]
+        val leftShoulder = landmarks[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]
+        val rightShoulder = landmarks[MediaPipeKeyPointEnum.RIGHT_SHOULDER.keyId]
+        val leftHip = landmarks[MediaPipeKeyPointEnum.LEFT_HIP.keyId]
+        val rightHip = landmarks[MediaPipeKeyPointEnum.RIGHT_HIP.keyId]
+        val leftAnkle = landmarks[MediaPipeKeyPointEnum.LEFT_ANKLE.keyId]
+        val rightAnkle = landmarks[MediaPipeKeyPointEnum.RIGHT_ANKLE.keyId]
+        val leftFoot = landmarks[MediaPipeKeyPointEnum.LEFT_FOOT_INDEX.keyId]
+        val rightFoot = landmarks[MediaPipeKeyPointEnum.RIGHT_FOOT_INDEX.keyId]
+        val leftKnee = landmarks[MediaPipeKeyPointEnum.LEFT_KNEE.keyId]
+        val rightKnee = landmarks[MediaPipeKeyPointEnum.RIGHT_KNEE.keyId]
 
-        return if (nose != null && leftShoulder != null && leftHip != null &&
-            leftAnkle != null && leftFoot != null && leftKnee != null) {
-            SitUpPoints(nose, leftShoulder, leftHip, leftAnkle, leftFoot, leftKnee)
-        } else null
+        val bodyPairs = listOf(
+            leftShoulder to rightShoulder,
+            leftHip to rightHip,
+            leftAnkle to rightAnkle,
+            leftFoot to rightFoot,
+            leftKnee to rightKnee
+        )
+        var leftCounter = 0
+        var rightCounter = 0
+                for (pair in bodyPairs) {
+            if(pair.first.visibility.get() < 0.75f && pair.second.visibility.get() < 0.75f){
+                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+                return null
+            }
+            if (pair.first.visibility.get() >= pair.second.visibility.get()) {
+                leftCounter++
+            } else {
+                rightCounter++
+            }
+            if (pair.first.presence.get() >= pair.second.presence.get()) {
+                leftCounter++
+            } else {
+                rightCounter++
+            }
+        }
+
+        return if(leftCounter > rightCounter){
+            SitUpPoints(
+                nose = nose,
+                leftShoulder = leftShoulder,
+                leftHip = leftHip,
+                leftAnkle = leftAnkle,
+                leftFoot = leftFoot,
+                leftKnee = leftKnee
+            )
+        } else{
+            SitUpPoints(
+                nose = nose,
+                leftShoulder = rightShoulder,
+                leftHip = rightHip,
+                leftAnkle = rightAnkle,
+                leftFoot = rightFoot,
+                leftKnee = rightKnee
+            )
+        }
     }
 
     private fun isFormCorrect(points: SitUpPoints): Boolean {

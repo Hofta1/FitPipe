@@ -39,8 +39,6 @@ constructor(
     private lateinit var squatChecker: SquatChecker
     private var currentExerciseTitle: String = ""
 
-    private var importantKeyPoints: List<MediaPipeKeyPointEnum> = emptyList()
-
     private fun initializeChecker(exerciseTitle: String) {
         val exerciseKey = convertTitleToKey(exerciseTitle)
         when (exerciseKey) {
@@ -83,65 +81,6 @@ constructor(
         }
 
     }
-    private val importantPushUpKeyPoints =
-        listOf(
-            MediaPipeKeyPointEnum.NOSE,
-            MediaPipeKeyPointEnum.LEFT_SHOULDER,
-            MediaPipeKeyPointEnum.RIGHT_SHOULDER,
-            MediaPipeKeyPointEnum.LEFT_ELBOW,
-            MediaPipeKeyPointEnum.RIGHT_ELBOW,
-            MediaPipeKeyPointEnum.LEFT_WRIST,
-            MediaPipeKeyPointEnum.RIGHT_WRIST,
-            MediaPipeKeyPointEnum.LEFT_HIP,
-            MediaPipeKeyPointEnum.RIGHT_HIP,
-            MediaPipeKeyPointEnum.LEFT_KNEE,
-            MediaPipeKeyPointEnum.RIGHT_KNEE,
-            MediaPipeKeyPointEnum.LEFT_ANKLE,
-            MediaPipeKeyPointEnum.RIGHT_ANKLE,
-        )
-    private val importantSitUpKeyPoints =
-        listOf(
-            MediaPipeKeyPointEnum.LEFT_SHOULDER,
-            MediaPipeKeyPointEnum.RIGHT_SHOULDER,
-            MediaPipeKeyPointEnum.LEFT_ELBOW,
-            MediaPipeKeyPointEnum.RIGHT_ELBOW,
-            MediaPipeKeyPointEnum.LEFT_HIP,
-            MediaPipeKeyPointEnum.RIGHT_HIP,
-            MediaPipeKeyPointEnum.LEFT_KNEE,
-            MediaPipeKeyPointEnum.RIGHT_KNEE,
-            MediaPipeKeyPointEnum.LEFT_ANKLE,
-            MediaPipeKeyPointEnum.RIGHT_ANKLE,
-        )
-    private val importantJumpingJackKeyPoints =
-        listOf(
-            MediaPipeKeyPointEnum.NOSE,
-            MediaPipeKeyPointEnum.LEFT_SHOULDER,
-            MediaPipeKeyPointEnum.RIGHT_SHOULDER,
-            MediaPipeKeyPointEnum.LEFT_ELBOW,
-            MediaPipeKeyPointEnum.RIGHT_ELBOW,
-            MediaPipeKeyPointEnum.LEFT_WRIST,
-            MediaPipeKeyPointEnum.RIGHT_WRIST,
-            MediaPipeKeyPointEnum.LEFT_HIP,
-            MediaPipeKeyPointEnum.RIGHT_HIP,
-            MediaPipeKeyPointEnum.LEFT_KNEE,
-            MediaPipeKeyPointEnum.RIGHT_KNEE,
-            MediaPipeKeyPointEnum.LEFT_ANKLE,
-            MediaPipeKeyPointEnum.RIGHT_ANKLE,
-        )
-    private val importantSquatKeyPoints =
-        listOf(
-            MediaPipeKeyPointEnum.NOSE,
-            MediaPipeKeyPointEnum.LEFT_SHOULDER,
-            MediaPipeKeyPointEnum.RIGHT_SHOULDER,
-            MediaPipeKeyPointEnum.LEFT_HIP,
-            MediaPipeKeyPointEnum.RIGHT_HIP,
-            MediaPipeKeyPointEnum.LEFT_KNEE,
-            MediaPipeKeyPointEnum.RIGHT_KNEE,
-            MediaPipeKeyPointEnum.LEFT_ANKLE,
-            MediaPipeKeyPointEnum.RIGHT_ANKLE,
-            MediaPipeKeyPointEnum.LEFT_FOOT_INDEX,
-            MediaPipeKeyPointEnum.RIGHT_FOOT_INDEX,
-        )
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -190,27 +129,14 @@ constructor(
             exerciseState.reset()
             initializeChecker(exerciseTitle)
             currentExerciseTitle = exerciseTitle
-            setImportantKeyPoints()
         }
-
-        val isImportantKeypointPresent = isImportantKeypointPresent(convertedLandmarks)
-        _uiState.update { currentState ->
-            currentState.copy(
-                isImportantKeypointPresent = isImportantKeypointPresent,
-                formattedStatusString = "All keypoints present",
-            )
-        }
-        if (!isImportantKeypointPresent) {
-            Log.d("HomeViewModel", "Important keypoints missing, not sending data.")
-            return
-        }
-        checkKeyPointsAngles(exerciseTitle, convertedLandmarks)
+        checkKeyPointsAngles(convertedLandmarks)
     }
 
     private fun checkKeyPointsAngles(
-        exerciseTitle: String,
         convertedLandmarks: List<ConvertedLandmark>,
     ) {
+        val exerciseTitle = currentExerciseTitle
         val exerciseKey = convertTitleToKey(exerciseTitle)
         when (exerciseKey) {
             ExerciseKey.push_up -> {
@@ -297,32 +223,6 @@ constructor(
         return floatSequence
     }
 
-    /**
-     * Converts the exercise title to an ExerciseKey.
-     * Returns null if the title does not match any known exercise.
-     */
-    private fun isImportantKeypointPresent(
-        landmarks: List<ConvertedLandmark>,
-    ): Boolean {
-        val lowPresenceLandmarks = landmarks.filter { it.presence.get() < 0.9f }
-        val allImportantKeyPointsPresent =
-            importantKeyPoints.all { keyPointEnum ->
-                lowPresenceLandmarks.none { it.keyPointEnum == keyPointEnum }
-            }
-        return allImportantKeyPointsPresent
-    }
-
-    private fun setImportantKeyPoints(){
-        val exerciseKey = convertTitleToKey(currentExerciseTitle)
-        importantKeyPoints =
-            when (exerciseKey) {
-                ExerciseKey.push_up -> importantPushUpKeyPoints
-                ExerciseKey.sit_up -> importantSitUpKeyPoints
-                ExerciseKey.jumping_jack -> importantJumpingJackKeyPoints
-                ExerciseKey.squat -> importantSquatKeyPoints
-                else -> emptyList()
-            }
-    }
 
     private fun convertTitleToKey(title: String): ExerciseKey? {
         return when (title) {

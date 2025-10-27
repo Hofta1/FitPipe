@@ -10,6 +10,7 @@ import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 import dev.romainguy.kotlin.math.Float2
 import kotlin.math.abs
+import kotlin.text.get
 
 class PushUpChecker(
     private val landmarkDataManager: LandmarkDataManager,
@@ -30,38 +31,88 @@ class PushUpChecker(
     }
 
     private fun extractRequiredPoints(landmarks: List<ConvertedLandmark>): PushUpPoints? {
-        val nose = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.NOSE }
-        val leftEye = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_EYE }
-        val leftShoulder = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }
-        val leftHip = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_HIP }
-        val leftAnkle = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_ANKLE }
-        val leftWrist = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_WRIST }
-        val leftElbow = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_ELBOW }
+        val nose = landmarks[MediaPipeKeyPointEnum.NOSE.keyId]
+        val leftEye = landmarks[MediaPipeKeyPointEnum.LEFT_EYE.keyId]
+        val rightEye = landmarks[MediaPipeKeyPointEnum.RIGHT_EYE.keyId]
+        val leftShoulder = landmarks[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]
+        val rightShoulder = landmarks[MediaPipeKeyPointEnum.RIGHT_SHOULDER.keyId]
+        val leftHip = landmarks[MediaPipeKeyPointEnum.LEFT_HIP.keyId]
+        val rightHip = landmarks[MediaPipeKeyPointEnum.RIGHT_HIP.keyId]
+        val leftAnkle = landmarks[MediaPipeKeyPointEnum.LEFT_ANKLE.keyId]
+        val rightAnkle = landmarks[MediaPipeKeyPointEnum.RIGHT_ANKLE.keyId]
+        val leftWrist = landmarks[MediaPipeKeyPointEnum.LEFT_WRIST.keyId]
+        val rightWrist = landmarks[MediaPipeKeyPointEnum.RIGHT_WRIST.keyId]
+        val leftElbow = landmarks[MediaPipeKeyPointEnum.LEFT_ELBOW.keyId]
+        val rightElbow = landmarks[MediaPipeKeyPointEnum.RIGHT_ELBOW.keyId]
 
-        return if (nose != null && leftEye != null && leftShoulder != null && leftHip != null &&
-            leftAnkle != null && leftWrist != null && leftElbow != null) {
-            PushUpPoints(nose, leftEye, leftShoulder, leftHip, leftAnkle, leftWrist, leftElbow)
-        } else null
+        val bodyPairs = listOf(
+            leftShoulder to rightShoulder,
+            leftHip to rightHip,
+            leftAnkle to rightAnkle,
+            leftWrist to rightWrist,
+            leftElbow to rightElbow
+        )
+        var leftCounter = 0
+        var rightCounter = 0
+
+        for (pair in bodyPairs) {
+            if(pair.first.visibility.get() < 0.75f && pair.second.visibility.get() < 0.75f){
+                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+                return null
+            }
+            if (pair.first.visibility.get() >= pair.second.visibility.get()) {
+                leftCounter++
+            } else {
+                rightCounter++
+            }
+            if (pair.first.presence.get() >= pair.second.presence.get()) {
+                leftCounter++
+            } else {
+                rightCounter++
+            }
+        }
+
+        return if (leftCounter > rightCounter){
+            PushUpPoints(
+                nose = nose,
+                eye = leftEye,
+                shoulder = leftShoulder,
+                hip = leftHip,
+                ankle = leftAnkle,
+                wrist = leftWrist,
+                elbow = leftElbow
+            )
+        } else{
+            PushUpPoints(
+                nose = nose,
+                eye = landmarks[MediaPipeKeyPointEnum.RIGHT_EYE.keyId],
+                shoulder = rightShoulder,
+                hip = rightHip,
+                ankle = rightAnkle,
+                wrist = rightWrist,
+                elbow = rightElbow
+            )
+        }
     }
 
     private fun isFormCorrect(points: PushUpPoints): Boolean {
         val neckAngle = get2dAngleBetweenPoints(
-            points.leftEye.toFloat2(),
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2()
+            points.eye.toFloat2(),
+            points.shoulder.toFloat2(),
+            points.hip.toFloat2()
         )
         val hipAngle = get2dAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2(),
-            points.leftAnkle.toFloat2()
+            points.shoulder.toFloat2(),
+            points.hip.toFloat2(),
+            points.ankle.toFloat2()
         )
         val bodyAngle = get2dAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftAnkle.toFloat2(),
-            Float2(points.leftWrist.x, points.leftAnkle.y)
+            points.shoulder.toFloat2(),
+            points.ankle.toFloat2(),
+            Float2(points.wrist.x, points.ankle.y)
         )
 
-        val bodyNotTooLow = points.leftEye.y > points.leftWrist.y - 0.1f
+        val bodyNotTooLow = points.eye.y > points.wrist.y - 0.1f
         val isBodyStraight = neckAngle.isInTolerance(150f, tolerance = 40f) && hipAngle.isInTolerance(170f)
         val isBodyAngleOkay = bodyAngle < 60f
 
@@ -70,14 +121,14 @@ class PushUpChecker(
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: PushUpPoints) {
         val elbowAngle = get2dAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftElbow.toFloat2(),
-            points.leftWrist.toFloat2()
+            points.shoulder.toFloat2(),
+            points.elbow.toFloat2(),
+            points.wrist.toFloat2()
         )
         val armAngle = get2dAngleBetweenPoints(
-            points.leftWrist.toFloat2(),
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2()
+            points.wrist.toFloat2(),
+            points.shoulder.toFloat2(),
+            points.hip.toFloat2()
         )
 
         when (exerciseStateManager.getCurrentState()) {
@@ -149,11 +200,11 @@ class PushUpChecker(
 
     private data class PushUpPoints(
         val nose: ConvertedLandmark,
-        val leftEye: ConvertedLandmark,
-        val leftShoulder: ConvertedLandmark,
-        val leftHip: ConvertedLandmark,
-        val leftAnkle: ConvertedLandmark,
-        val leftWrist: ConvertedLandmark,
-        val leftElbow: ConvertedLandmark
+        val eye: ConvertedLandmark,
+        val shoulder: ConvertedLandmark,
+        val hip: ConvertedLandmark,
+        val ankle: ConvertedLandmark,
+        val wrist: ConvertedLandmark,
+        val elbow: ConvertedLandmark
     )
 }

@@ -9,6 +9,7 @@ import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 import kotlin.math.abs
+import kotlin.text.get
 
 class SquatChecker (
     private val landmarkDataManager: LandmarkDataManager,
@@ -36,30 +37,63 @@ class SquatChecker (
     }
 
     private fun extractRequiredPoints(landmarks: List<ConvertedLandmark>): SquatPoints? {
-        val nose = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.NOSE }
-        val leftShoulder = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }
-        val leftHip = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_HIP }
-        val leftKnee = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_KNEE }
-        val leftAnkle = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_ANKLE }
-        val leftFoot = landmarks.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_FOOT_INDEX }
+        var leftCounter = 0
+        var rightCounter = 0
+        val nose = landmarks[MediaPipeKeyPointEnum.NOSE.keyId]
+        val leftShoulder = landmarks[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]
+        val rightShoulder = landmarks[MediaPipeKeyPointEnum.RIGHT_SHOULDER.keyId]
+        val leftHip = landmarks[MediaPipeKeyPointEnum.LEFT_HIP.keyId]
+        val rightHip = landmarks[MediaPipeKeyPointEnum.RIGHT_HIP.keyId]
+        val leftKnee = landmarks[MediaPipeKeyPointEnum.LEFT_KNEE.keyId]
+        val rightKnee = landmarks[MediaPipeKeyPointEnum.RIGHT_KNEE.keyId]
+        val leftAnkle = landmarks[MediaPipeKeyPointEnum.LEFT_ANKLE.keyId]
+        val rightAnkle = landmarks[MediaPipeKeyPointEnum.RIGHT_ANKLE.keyId]
+        val leftFoot = landmarks[MediaPipeKeyPointEnum.LEFT_FOOT_INDEX.keyId]
+        val rightFoot = landmarks[MediaPipeKeyPointEnum.RIGHT_FOOT_INDEX.keyId]
 
-        return if (nose != null && leftShoulder != null && leftHip != null &&
-            leftAnkle != null && leftFoot != null && leftKnee != null) {
+        val bodyPairs = listOf(
+            leftShoulder to rightShoulder,
+            leftHip to rightHip,
+            leftKnee to rightKnee,
+            leftAnkle to rightAnkle,
+            leftFoot to rightFoot
+        )
+        for (pair in bodyPairs) {
+            if(pair.first.visibility.get() < 0.75f && pair.second.visibility.get() < 0.75f){
+                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+                return null
+            }
+            if (pair.first.visibility.get() >= pair.second.visibility.get()) {
+                leftCounter++
+            } else {
+                rightCounter++
+            }
+            if (pair.first.presence.get() >= pair.second.presence.get()) {
+                leftCounter++
+            } else {
+                rightCounter++
+            }
+        }
+
+
+        return if(leftCounter > rightCounter){
             SquatPoints(nose, leftShoulder, leftHip, leftAnkle, leftFoot, leftKnee)
-        } else null
+        }else{
+            SquatPoints(nose, rightShoulder, rightHip, rightAnkle, rightFoot, rightKnee)
+        }
     }
 
     private fun isFormCorrect(points: SquatPoints): Boolean {
         var isShoulderDifferenceBig = false
         if(landmarkDataManager.getLandmarkCount() != 0){
             val firstShoulderXFloat = landmarkDataManager.getFirstShoulderX()
-            val currentShoulderXFloat = points.leftShoulder.x
+            val currentShoulderXFloat = points.shoulder.x
             val shoulderXDifference = abs(currentShoulderXFloat - firstShoulderXFloat)
             isShoulderDifferenceBig = shoulderXDifference > 0.05f
             Log.d("SquatChecker", "shoulder difference: $shoulderXDifference")
         }
 
-        val kneeOverFoot = points.leftKnee.x > points.leftFoot.x + 0.05f
+        val kneeOverFoot = points.knee.x > points.foot.x + 0.05f
         if (kneeOverFoot) {
             statusString = "Knee can't be over foot"
         }
@@ -69,15 +103,15 @@ class SquatChecker (
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: SquatPoints) {
         val hipAngle = get2dAngleBetweenPoints(
-            points.leftShoulder.toFloat2(),
-            points.leftHip.toFloat2(),
-            points.leftKnee.toFloat2()
+            points.shoulder.toFloat2(),
+            points.hip.toFloat2(),
+            points.knee.toFloat2()
         )
 
         val kneeAngle = get2dAngleBetweenPoints(
-            points.leftHip.toFloat2(),
-            points.leftKnee.toFloat2(),
-            points.leftAnkle.toFloat2()
+            points.hip.toFloat2(),
+            points.knee.toFloat2(),
+            points.ankle.toFloat2()
         )
 
         when (exerciseStateManager.getCurrentState()) {
@@ -156,10 +190,10 @@ class SquatChecker (
 
     private data class SquatPoints(
         val nose: ConvertedLandmark,
-        val leftShoulder: ConvertedLandmark,
-        val leftHip: ConvertedLandmark,
-        val leftAnkle: ConvertedLandmark,
-        val leftFoot: ConvertedLandmark,
-        val leftKnee: ConvertedLandmark
+        val shoulder: ConvertedLandmark,
+        val hip: ConvertedLandmark,
+        val ankle: ConvertedLandmark,
+        val foot: ConvertedLandmark,
+        val knee: ConvertedLandmark
     )
 }
