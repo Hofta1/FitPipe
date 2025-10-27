@@ -1,8 +1,8 @@
 package com.binus.fitpipe.poselandmarker
 
 import android.content.Context
-import android.graphics.Bitmap
-import com.google.mediapipe.framework.image.BitmapImageBuilder
+import android.media.Image
+import com.google.mediapipe.framework.image.MediaImageBuilder
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
@@ -36,10 +36,10 @@ class PoseLandmarkerHelper(private val context: Context) {
     }
 
     fun detect(
-        bitmap: Bitmap,
+        image: Image,
         currentTime: Long,
     ): PoseLandmarkerResult? {
-        val mpImage = BitmapImageBuilder(bitmap).build()
+        val mpImage = MediaImageBuilder(image).build()
         return poseLandmarker?.detectForVideo(mpImage, currentTime)
     }
 

@@ -4,40 +4,27 @@ import android.util.Log
 import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseState
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
-import com.binus.fitpipe.home.domain.utils.AngleCalculator.get3dAngleBetweenPoints
+import com.binus.fitpipe.home.domain.utils.AngleCalculator.get2dAngleBetweenPoints
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
-import dev.romainguy.kotlin.math.Float3
+import dev.romainguy.kotlin.math.Float2
 import kotlin.math.abs
 
 class PushUpChecker(
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
-) {
-    var isFormOkay = false
-    var statusString = ""
-    private var badFormFrameCount = 0
-    private val BAD_FORM_THRESHOLD = 12
-
-    fun getFormattedStatus(): String {
-        return statusString
-    }
-
-    fun getFormStatus(): Boolean {
-        return isFormOkay
-    }
-
+): ExerciseChecker() {
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
 
         if (!isFormCorrect(requiredPoints)) {
-            Log.d("PushUpChecker", "Push Up form is bad")
+            isFormOkay = false
             return false
         }
 
-        Log.d("PushUpChecker", "Push Up form is good")
+        isFormOkay = true
         processExerciseState(convertedLandmarks, requiredPoints)
         return true
     }
@@ -58,42 +45,39 @@ class PushUpChecker(
     }
 
     private fun isFormCorrect(points: PushUpPoints): Boolean {
-        val neckAngle = get3dAngleBetweenPoints(
-            points.leftEye.toFloat3(),
-            points.leftShoulder.toFloat3(),
-            points.leftHip.toFloat3()
+        val neckAngle = get2dAngleBetweenPoints(
+            points.leftEye.toFloat2(),
+            points.leftShoulder.toFloat2(),
+            points.leftHip.toFloat2()
         )
-        val hipAngle = get3dAngleBetweenPoints(
-            points.leftShoulder.toFloat3(),
-            points.leftHip.toFloat3(),
-            points.leftAnkle.toFloat3()
+        val hipAngle = get2dAngleBetweenPoints(
+            points.leftShoulder.toFloat2(),
+            points.leftHip.toFloat2(),
+            points.leftAnkle.toFloat2()
         )
-        val bodyAngle = get3dAngleBetweenPoints(
-            points.leftShoulder.toFloat3(),
-            points.leftAnkle.toFloat3(),
-            Float3(points.leftWrist.x, points.leftAnkle.y, points.leftWrist.z)
+        val bodyAngle = get2dAngleBetweenPoints(
+            points.leftShoulder.toFloat2(),
+            points.leftAnkle.toFloat2(),
+            Float2(points.leftWrist.x, points.leftAnkle.y)
         )
 
         val bodyNotTooLow = points.leftEye.y > points.leftWrist.y - 0.1f
-        val isBodyStraight = neckAngle > 120f && neckAngle < 185f && hipAngle.isInTolerance(165f)
+        val isBodyStraight = neckAngle.isInTolerance(150f, tolerance = 40f) && hipAngle.isInTolerance(170f)
         val isBodyAngleOkay = bodyAngle < 60f
-
-        Log.d("PushUpCheckerStart", "Neck Angle: $neckAngle, Hip Angle: $hipAngle, Body Angle: $bodyAngle")
-        Log.d("PushUpCheckerStart", "Body Not Too Low: $bodyNotTooLow, Is Body Straight: $isBodyStraight, Is Body Angle Okay: $isBodyAngleOkay")
 
         return isBodyStraight && isBodyAngleOkay && bodyNotTooLow
     }
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: PushUpPoints) {
-        val elbowAngle = get3dAngleBetweenPoints(
-            points.leftShoulder.toFloat3(),
-            points.leftElbow.toFloat3(),
-            points.leftWrist.toFloat3()
+        val elbowAngle = get2dAngleBetweenPoints(
+            points.leftShoulder.toFloat2(),
+            points.leftElbow.toFloat2(),
+            points.leftWrist.toFloat2()
         )
-        val armAngle = get3dAngleBetweenPoints(
-            points.leftWrist.toFloat3(),
-            points.leftShoulder.toFloat3(),
-            points.leftHip.toFloat3()
+        val armAngle = get2dAngleBetweenPoints(
+            points.leftWrist.toFloat2(),
+            points.leftShoulder.toFloat2(),
+            points.leftHip.toFloat2()
         )
 
         when (exerciseStateManager.getCurrentState()) {
@@ -107,9 +91,7 @@ class PushUpChecker(
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, elbowAngle: Float, armAngle: Float) {
-
-        Log.d("PushUpCheckerGood", "Elbow Angle: $elbowAngle, Arm Angle: $armAngle")
-        if (elbowAngle.isInTolerance(180f) && armAngle.isInTolerance(90f)) {
+        if (elbowAngle.isInTolerance(180f) && armAngle.isInTolerance(75f, tolerance = 40f)) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
             Log.d("PushUpChecker", "Push Up started")
@@ -142,7 +124,7 @@ class PushUpChecker(
                 Log.d("PushUpChecker", "Push Up completed")
             }
             landmarkDataManager.addLandmarks(landmarks)
-        } else if (elbowAngle <= 75f) {
+        } else if (elbowAngle <= 45f) {
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
             Log.d("PushUpChecker", "Push Up failed")
         }
@@ -155,11 +137,14 @@ class PushUpChecker(
         }else{
             onExerciseCompleted(landmarkDataManager.getAllLandmarks())
         }
+        landmarkDataManager.clear()
+        exerciseStateManager.reset()
     }
 
     private fun handleFailed() {
         landmarkDataManager.clear()
         exerciseStateManager.reset()
+        badFormFrameCount = 0
     }
 
     private data class PushUpPoints(

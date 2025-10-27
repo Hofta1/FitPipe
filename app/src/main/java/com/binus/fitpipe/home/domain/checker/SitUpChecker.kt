@@ -14,19 +14,7 @@ class SitUpChecker(
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
-) {
-    var isFormOkay = false
-    var statusString = ""
-    private var badFormFrameCount = 0
-    private val BAD_FORM_THRESHOLD = 12
-
-    fun getFormattedStatus(): String {
-        return statusString
-    }
-
-    fun getFormStatus(): Boolean {
-        return isFormOkay
-    }
+): ExerciseChecker() {
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
 
@@ -43,7 +31,6 @@ class SitUpChecker(
             return false
         }
         isFormOkay = true
-
         badFormFrameCount = 0
         processExerciseState(convertedLandmarks, requiredPoints)
         return true
@@ -151,7 +138,7 @@ class SitUpChecker(
             Log.d("SitUpChecker", "Too many landmarks: ${landmarkDataManager.getLandmarkCount()}")
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
-        exerciseStateManager.updateState(ExerciseState.WAITING_TO_START)
+        exerciseStateManager.reset()
         landmarkDataManager.clear()
     }
 

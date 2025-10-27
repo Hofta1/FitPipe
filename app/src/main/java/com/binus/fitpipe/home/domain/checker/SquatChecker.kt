@@ -14,19 +14,7 @@ class SquatChecker (
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
-) {
-    var isFormOkay = false
-    var statusString = ""
-    private var badFormFrameCount = 0
-    private val BAD_FORM_THRESHOLD = 6
-
-    fun getFormattedStatus(): String {
-        return statusString
-    }
-
-    fun getFormStatus(): Boolean {
-        return isFormOkay
-    }
+): ExerciseChecker() {
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
 
