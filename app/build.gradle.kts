@@ -83,8 +83,6 @@ dependencies {
 
     // MediaPipe
     implementation(libs.mediapipe.tasks.vision)
-    implementation(libs.mediapipe.framework)
-    implementation(libs.mediapipe.framework.image)
 
     // Coroutine
     implementation(libs.kotlinx.coroutines.android)
