@@ -6,10 +6,9 @@ data class HomeUiState(
     val isLoading: Boolean = true,
     val rows: List<HomeRowData> = emptyList(),
     val exerciseCount: Int = 0,
-    val isImportantKeypointPresent: Boolean = false,
     val formattedStatusString: String = "",
     val fullErrorMessage: MutableList<String> = mutableListOf(),
-    val isFormOkay: Boolean = true,
+    val isFormOkay: Boolean = false,
 )
 
 data class HomeRowData(

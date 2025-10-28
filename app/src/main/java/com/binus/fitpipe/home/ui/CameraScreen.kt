@@ -4,19 +4,16 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.ContentObserver
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.Rect
-import android.graphics.YuvImage
 import android.provider.Settings
 import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
@@ -66,7 +63,6 @@ import com.binus.fitpipe.ui.theme.Grey70
 import com.binus.fitpipe.ui.theme.Typo
 import com.binus.fitpipe.ui.theme.White80
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import java.io.ByteArrayOutputStream
 import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 
 @Composable
@@ -144,7 +140,6 @@ private fun PoseScanLayoutScreen(
 ){
     val formattedStatus = uiState.formattedStatusString
     val exerciseCount = uiState.exerciseCount
-    val isImportantKeypointPresent = uiState.isImportantKeypointPresent
     val isFormOkay = uiState.isFormOkay
 
     var hasCameraPermission by remember {
@@ -226,7 +221,7 @@ private fun PoseScanLayoutScreen(
                     Box(
                         modifier = modifier.size(20.dp)
                             .background(
-                                if (isImportantKeypointPresent && isFormOkay) Color.Green else Color.Red,
+                                if (isFormOkay) Color.Green else Color.Red,
                                 shape = CircleShape
                             )
                     )
@@ -316,6 +311,8 @@ fun CameraPreviewView(
                     CameraController.IMAGE_CAPTURE or
                         CameraController.IMAGE_ANALYSIS,
                 )
+                imageAnalysisBackpressureStrategy = ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
+                imageAnalysisOutputImageFormat = ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
 
                 setImageAnalysisAnalyzer(
                     ContextCompat.getMainExecutor(context),
@@ -360,29 +357,6 @@ fun CameraPreviewView(
             }
         },
     )
-}
-
-// Your imageProxyToBitmap function looks correct, but here's a cleaner version:
-fun imageProxyToBitmap(image: ImageProxy): Bitmap {
-    val yBuffer = image.planes[0].buffer
-    val uBuffer = image.planes[1].buffer
-    val vBuffer = image.planes[2].buffer
-
-    val ySize = yBuffer.remaining()
-    val uSize = uBuffer.remaining()
-    val vSize = vBuffer.remaining()
-
-    val nv21 = ByteArray(ySize + uSize + vSize)
-    yBuffer.get(nv21, 0, ySize)
-    vBuffer.get(nv21, ySize, vSize)
-    uBuffer.get(nv21, ySize + vSize, uSize)
-
-    val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
-    val out = ByteArrayOutputStream()
-    yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 75, out) // Reduced quality for performance
-    val yuv = out.toByteArray()
-
-    return BitmapFactory.decodeByteArray(yuv, 0, yuv.size)
 }
 
 private fun isAutoRotationEnabled(context: Context): Boolean {

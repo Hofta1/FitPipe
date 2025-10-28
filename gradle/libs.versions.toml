@@ -13,7 +13,7 @@ ksp = "2.1.21-2.0.1"
 retrofit = "2.11.0"
 camera = "1.4.2"
 chucker = "4.1.0"
-mediapipe = "0.20230731"
+mediapipe = "0.10.26.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,8 +43,6 @@ androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", 
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camera" }
 androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", version = "1.5.0-beta01" }
 mediapipe-tasks-vision = { group = "com.google.mediapipe", name = "tasks-vision", version.ref = "mediapipe"}
-mediapipe-framework = { group = "com.google.mediapipe", name = "framework", version.ref = "mediapipe"}
-mediapipe-framework-image = { group = "com.google.mediapipe", name = "framework-image", version.ref = "mediapipe"}
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version = "1.10.2" }
 chucker = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
 chucker-no-op = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }

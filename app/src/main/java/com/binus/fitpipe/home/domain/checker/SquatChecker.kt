@@ -16,6 +16,8 @@ class SquatChecker (
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
 ): ExerciseChecker() {
+
+    private var isFacingLeft: Boolean = true
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
 
@@ -79,13 +81,14 @@ class SquatChecker (
         return if(leftCounter > rightCounter){
             SquatPoints(nose, leftShoulder, leftHip, leftAnkle, leftFoot, leftKnee)
         }else{
+            isFacingLeft = false
             SquatPoints(nose, rightShoulder, rightHip, rightAnkle, rightFoot, rightKnee)
         }
     }
 
     private fun isFormCorrect(points: SquatPoints): Boolean {
         var isShoulderDifferenceBig = false
-        if(landmarkDataManager.getLandmarkCount() != 0){
+        if(landmarkDataManager.getLandmarkCount() > 1){
             val firstShoulderXFloat = landmarkDataManager.getFirstShoulderX()
             val currentShoulderXFloat = points.shoulder.x
             val shoulderXDifference = abs(currentShoulderXFloat - firstShoulderXFloat)
@@ -93,7 +96,7 @@ class SquatChecker (
             Log.d("SquatChecker", "shoulder difference: $shoulderXDifference")
         }
 
-        val kneeOverFoot = points.knee.x > points.foot.x + 0.05f
+        val kneeOverFoot = if(isFacingLeft) points.knee.x > points.foot.x else points.knee.x < points.foot.x
         if (kneeOverFoot) {
             statusString = "Knee can't be over foot"
         }

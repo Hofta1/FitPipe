@@ -13,53 +13,44 @@ class LandmarkDataManager {
 
     fun getLastElbowAngle(): Float {
         val lastLandmark = landmarkList.lastOrNull()
-        val lastShoulder = lastLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }
-        val lastElbow = lastLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_ELBOW }
-        val lastWrist = lastLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_WRIST }
-
-        return if (lastShoulder != null && lastElbow != null && lastWrist != null) {
+        return lastLandmark?.let { landmark ->
+            val lastShoulder = landmark[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]
+            val lastElbow = landmark[MediaPipeKeyPointEnum.LEFT_ELBOW.keyId]
+            val lastWrist = landmark[MediaPipeKeyPointEnum.LEFT_WRIST.keyId]
             get2dAngleBetweenPoints(
                 lastShoulder.toFloat2(),
                 lastElbow.toFloat2(),
                 lastWrist.toFloat2(),
             )
-        } else {
-            0f
-        }
+        } ?: 0f
     }
 
     fun getLastHipAngle(): Float {
         val lastLandmark = landmarkList.lastOrNull()
-        val lastShoulder = lastLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }
-        val lastHip = lastLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_HIP }
-        val leftKnee = lastLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_KNEE }
-
-        return if (lastShoulder != null && lastHip != null && leftKnee != null) {
+        return lastLandmark?.let { landmark ->
+            val lastShoulder = landmark[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]
+            val lastHip = landmark[MediaPipeKeyPointEnum.LEFT_HIP.keyId]
+            val leftKnee = landmark[MediaPipeKeyPointEnum.LEFT_KNEE.keyId]
             get2dAngleBetweenPoints(
                 lastShoulder.toFloat2(),
                 lastHip.toFloat2(),
                 leftKnee.toFloat2(),
             )
-        } else {
-            0f
-        }
+        }?: 0f
     }
 
     fun getLastKneeAngle(): Float {
         val lastLandmark = landmarkList.lastOrNull()
-        val lastHip = lastLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_HIP }
-        val leftKnee = lastLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_KNEE }
-        val leftAnkle = lastLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_ANKLE }
-
-        return if (lastHip != null && leftKnee != null && leftAnkle != null) {
+        return lastLandmark?.let { landmark ->
+            val lastHip = landmark[MediaPipeKeyPointEnum.LEFT_HIP.keyId]
+            val leftKnee = landmark[MediaPipeKeyPointEnum.LEFT_KNEE.keyId]
+            val leftAnkle = landmark[MediaPipeKeyPointEnum.LEFT_ANKLE.keyId]
             get2dAngleBetweenPoints(
                 lastHip.toFloat2(),
                 leftKnee.toFloat2(),
                 leftAnkle.toFloat2(),
             )
-        } else {
-            0f
-        }
+        } ?: 0f
     }
 
     fun getAllLandmarks(): List<List<ConvertedLandmark>> = landmarkList.toList()
@@ -71,24 +62,36 @@ class LandmarkDataManager {
     }
 
     fun getFirstShoulderX(): Float{
-        return landmarkList.firstOrNull()?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }?.toFloat2()?.x ?: 0f
+        return landmarkList.firstOrNull()?.let { landmark ->
+            landmark[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId].toFloat2().x
+        } ?: 0f
     }
 
     fun getFirstHipAngle(): Float {
         val firstLandmark = landmarkList.firstOrNull()
-        val firstShoulder =
-            firstLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_SHOULDER }
-        val firstHip = firstLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_HIP }
-        val firstKnee = firstLandmark?.find { it.keyPointEnum == MediaPipeKeyPointEnum.LEFT_KNEE }
-
-        return if (firstShoulder != null && firstHip != null && firstKnee != null) {
+        return firstLandmark?.let{ landmark ->
+            val firstShoulder = landmark[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]
+            val firstHip = landmark[MediaPipeKeyPointEnum.LEFT_HIP.keyId]
+            val firstKnee = landmark[MediaPipeKeyPointEnum.LEFT_KNEE.keyId]
             get2dAngleBetweenPoints(
                 firstShoulder.toFloat2(),
                 firstHip.toFloat2(),
                 firstKnee.toFloat2(),
             )
-        } else {
-            0f
-        }
+        } ?: 0f
+    }
+
+    fun getFirstElbowAngle(): Float {
+        val firstLandmark = landmarkList.firstOrNull()
+        return firstLandmark?.let{ landmark ->
+            val firstShoulder = landmark[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]
+            val firstElbow = landmark[MediaPipeKeyPointEnum.LEFT_ELBOW.keyId]
+            val firstWrist = landmark[MediaPipeKeyPointEnum.LEFT_WRIST.keyId]
+            get2dAngleBetweenPoints(
+                firstShoulder.toFloat2(),
+                firstElbow.toFloat2(),
+                firstWrist.toFloat2(),
+            )
+        } ?: 0f
     }
 }

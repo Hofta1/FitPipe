@@ -5,12 +5,12 @@ import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseState
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.get2dAngleBetweenPoints
+import com.binus.fitpipe.home.domain.utils.AngleCalculator.get3dAngleBetweenPoints
 import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
-import dev.romainguy.kotlin.math.Float2
+import dev.romainguy.kotlin.math.Float3
 import kotlin.math.abs
-import kotlin.text.get
 
 class PushUpChecker(
     private val landmarkDataManager: LandmarkDataManager,
@@ -32,8 +32,8 @@ class PushUpChecker(
 
     private fun extractRequiredPoints(landmarks: List<ConvertedLandmark>): PushUpPoints? {
         val nose = landmarks[MediaPipeKeyPointEnum.NOSE.keyId]
-        val leftEye = landmarks[MediaPipeKeyPointEnum.LEFT_EYE.keyId]
-        val rightEye = landmarks[MediaPipeKeyPointEnum.RIGHT_EYE.keyId]
+        val leftEar = landmarks[MediaPipeKeyPointEnum.LEFT_EAR.keyId]
+        val rightEar = landmarks[MediaPipeKeyPointEnum.RIGHT_EAR.keyId]
         val leftShoulder = landmarks[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]
         val rightShoulder = landmarks[MediaPipeKeyPointEnum.RIGHT_SHOULDER.keyId]
         val leftHip = landmarks[MediaPipeKeyPointEnum.LEFT_HIP.keyId]
@@ -46,6 +46,7 @@ class PushUpChecker(
         val rightElbow = landmarks[MediaPipeKeyPointEnum.RIGHT_ELBOW.keyId]
 
         val bodyPairs = listOf(
+            leftEar to rightEar,
             leftShoulder to rightShoulder,
             leftHip to rightHip,
             leftAnkle to rightAnkle,
@@ -75,7 +76,7 @@ class PushUpChecker(
         return if (leftCounter > rightCounter){
             PushUpPoints(
                 nose = nose,
-                eye = leftEye,
+                ear = leftEar,
                 shoulder = leftShoulder,
                 hip = leftHip,
                 ankle = leftAnkle,
@@ -85,7 +86,7 @@ class PushUpChecker(
         } else{
             PushUpPoints(
                 nose = nose,
-                eye = landmarks[MediaPipeKeyPointEnum.RIGHT_EYE.keyId],
+                ear = rightEar,
                 shoulder = rightShoulder,
                 hip = rightHip,
                 ankle = rightAnkle,
@@ -97,23 +98,23 @@ class PushUpChecker(
 
     private fun isFormCorrect(points: PushUpPoints): Boolean {
         val neckAngle = get2dAngleBetweenPoints(
-            points.eye.toFloat2(),
+            points.ear.toFloat2(),
             points.shoulder.toFloat2(),
             points.hip.toFloat2()
         )
-        val hipAngle = get2dAngleBetweenPoints(
-            points.shoulder.toFloat2(),
-            points.hip.toFloat2(),
-            points.ankle.toFloat2()
+        val hipAngle = get3dAngleBetweenPoints(
+            points.shoulder.toFloat3(),
+            points.hip.toFloat3(),
+            points.ankle.toFloat3()
         )
-        val bodyAngle = get2dAngleBetweenPoints(
-            points.shoulder.toFloat2(),
-            points.ankle.toFloat2(),
-            Float2(points.wrist.x, points.ankle.y)
+        val bodyAngle = get3dAngleBetweenPoints(
+            points.shoulder.toFloat3(),
+            points.ankle.toFloat3(),
+            Float3(points.wrist.x, points.ankle.y, points.wrist.z)
         )
 
-        val bodyNotTooLow = points.eye.y > points.wrist.y - 0.1f
-        val isBodyStraight = neckAngle.isInTolerance(150f, tolerance = 40f) && hipAngle.isInTolerance(170f)
+        val bodyNotTooLow = points.ear.y > points.wrist.y - 0.1f
+        val isBodyStraight = neckAngle.isInTolerance(160f, tolerance = 40f) && hipAngle.isInTolerance(170f)
         val isBodyAngleOkay = bodyAngle < 60f
 
         return isBodyStraight && isBodyAngleOkay && bodyNotTooLow
@@ -142,7 +143,7 @@ class PushUpChecker(
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, elbowAngle: Float, armAngle: Float) {
-        if (elbowAngle.isInTolerance(180f) && armAngle.isInTolerance(75f, tolerance = 40f)) {
+        if (elbowAngle.isInTolerance(180f, tolerance = 30f) && armAngle.isInTolerance(75f, tolerance = 40f)) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
             Log.d("PushUpChecker", "Push Up started")
@@ -160,7 +161,7 @@ class PushUpChecker(
 
     private fun checkDownMax(landmarks: List<ConvertedLandmark>, elbowAngle: Float) {
         if (elbowAngle <= landmarkDataManager.getLastElbowAngle()) {
-            if (elbowAngle.isInTolerance(90f)) {
+            if (elbowAngle.isInTolerance(80f)) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
                 Log.d("PushUpChecker", "Push Up going up")
             }
@@ -170,7 +171,7 @@ class PushUpChecker(
 
     private fun checkUpMax(landmarks: List<ConvertedLandmark>, elbowAngle: Float) {
         if (elbowAngle >= landmarkDataManager.getLastElbowAngle()) {
-            if (elbowAngle.isInTolerance(180f)) {
+            if (elbowAngle.isInTolerance(landmarkDataManager.getFirstElbowAngle())) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("PushUpChecker", "Push Up completed")
             }
@@ -200,7 +201,7 @@ class PushUpChecker(
 
     private data class PushUpPoints(
         val nose: ConvertedLandmark,
-        val eye: ConvertedLandmark,
+        val ear: ConvertedLandmark,
         val shoulder: ConvertedLandmark,
         val hip: ConvertedLandmark,
         val ankle: ConvertedLandmark,

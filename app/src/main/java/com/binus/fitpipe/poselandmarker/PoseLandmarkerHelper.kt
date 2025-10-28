@@ -55,7 +55,7 @@ class PoseLandmarkerHelper(private val context: Context) {
                             z = landmark.z(),
                             visibility = landmark.visibility(),
                             presence = landmark.presence(),
-                        ).addKeyPointEnum(index),
+                        ),
                     )
                 }
             }
@@ -68,7 +68,7 @@ class PoseLandmarkerHelper(private val context: Context) {
                             z = landmark.z(),
                             visibility = landmark.visibility(),
                             presence = landmark.presence(),
-                        ).addKeyPointEnum(index),
+                        ),
                     )
                 }
             }
@@ -81,7 +81,7 @@ class PoseLandmarkerHelper(private val context: Context) {
                             z = landmark.z(),
                             visibility = landmark.visibility(),
                             presence = landmark.presence(),
-                        ).addKeyPointEnum(index),
+                        ),
                     )
                 }
             }
@@ -94,7 +94,7 @@ class PoseLandmarkerHelper(private val context: Context) {
                             z = landmark.z(),
                             visibility = landmark.visibility(),
                             presence = landmark.presence(),
-                        ).addKeyPointEnum(index),
+                        ),
                     )
                 }
             }
