@@ -11,7 +11,6 @@ data class ConvertedLandmark(
     val z: Float,
     val visibility: Optional<Float>,
     val presence: Optional<Float>,
-    val keyPointEnum: MediaPipeKeyPointEnum? = null,
 ) {
     fun toFloat2(): Float2 {
         return Float2(x, y)

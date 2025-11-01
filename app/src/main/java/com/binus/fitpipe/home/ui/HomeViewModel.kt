@@ -8,6 +8,7 @@ import com.binus.fitpipe.R
 import com.binus.fitpipe.home.data.HomeRepository
 import com.binus.fitpipe.home.data.HomeRowData
 import com.binus.fitpipe.home.data.HomeUiState
+import com.binus.fitpipe.home.domain.checker.JumpingJackChecker
 import com.binus.fitpipe.home.domain.checker.PushUpChecker
 import com.binus.fitpipe.home.domain.checker.SitUpChecker
 import com.binus.fitpipe.home.domain.checker.SquatChecker
@@ -34,7 +35,7 @@ constructor(
 
     private lateinit var pushUpChecker: PushUpChecker
     private lateinit var sitUpChecker: SitUpChecker
-    private lateinit var jumpingJackChecker: PushUpChecker
+    private lateinit var jumpingJackChecker: JumpingJackChecker
     private lateinit var squatChecker: SquatChecker
     private var currentExerciseTitle: String = ""
 
@@ -61,7 +62,13 @@ constructor(
             }
 
             ExerciseKey.jumping_jack -> {
-                // Initialize JumpingJackChecker when implemented
+                jumpingJackChecker = JumpingJackChecker(
+                    landmarkDataManager,
+                    exerciseState,
+                    onExerciseCompleted = { landmarks ->
+                        sendLandmarkData(exerciseTitle, landmarks)
+                    },
+                )
             }
 
             ExerciseKey.squat -> {
@@ -159,7 +166,13 @@ constructor(
             }
 
             ExerciseKey.jumping_jack -> {
-                jumpingJackChecker
+                jumpingJackChecker.checkExercise(convertedLandmarks)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        formattedStatusString = jumpingJackChecker.getFormattedStatus(),
+                        isFormOkay = jumpingJackChecker.getFormStatus(),
+                    )
+                }
                 // Implement jumping jack angle checks if needed
             }
 

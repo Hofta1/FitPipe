@@ -9,7 +9,6 @@ import com.binus.fitpipe.home.domain.utils.AngleCalculator.isInTolerance
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 import kotlin.math.abs
-import kotlin.text.get
 
 class SquatChecker (
     private val landmarkDataManager: LandmarkDataManager,
@@ -89,7 +88,8 @@ class SquatChecker (
     private fun isFormCorrect(points: SquatPoints): Boolean {
         var isShoulderDifferenceBig = false
         if(landmarkDataManager.getLandmarkCount() > 1){
-            val firstShoulderXFloat = landmarkDataManager.getFirstShoulderX()
+            val shoulderEnum = if(isFacingLeft) MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId else MediaPipeKeyPointEnum.RIGHT_SHOULDER.keyId
+            val firstShoulderXFloat = landmarkDataManager.getStartingX(shoulderEnum)
             val currentShoulderXFloat = points.shoulder.x
             val shoulderXDifference = abs(currentShoulderXFloat - firstShoulderXFloat)
             isShoulderDifferenceBig = shoulderXDifference > 0.05f
@@ -156,7 +156,7 @@ class SquatChecker (
             }
             landmarkDataManager.addLandmarks(landmarks)
         }else if (kneeAngle > 150f) { //when the user goes up again without reaching the down max
-            Log.d("SquatChecker", "Squat failed, not deep enough")
+            statusString = "Did not go down enough"
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
     }
@@ -169,7 +169,7 @@ class SquatChecker (
             }
             landmarkDataManager.addLandmarks(landmarks)
         }else if (kneeAngle < 50f) { //when user goes too deep
-            Log.d("SquatChecker", "Squat failed, too deep")
+            statusString = "Knee bent too much"
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
     }
