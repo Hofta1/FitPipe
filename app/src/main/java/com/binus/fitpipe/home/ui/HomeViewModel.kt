@@ -15,7 +15,6 @@ import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
-import com.binus.fitpipe.poselandmarker.MediaPipeKeyPointEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,7 +50,7 @@ constructor(
                     },
                 )
             }
-            ExerciseKey.sit_up -> {
+            ExerciseKey.situp -> {
                 sitUpChecker = SitUpChecker(
                     landmarkDataManager,
                     exerciseState,
@@ -103,7 +102,7 @@ constructor(
                         HomeRowData(
                             title = "Sit Up",
                             imageResourceId = R.drawable.sit_up_icon,
-                            exerciseKey = ExerciseKey.sit_up,
+                            exerciseKey = ExerciseKey.situp,
                         ),
                         HomeRowData(
                             title = "Jumping Jack",
@@ -149,7 +148,7 @@ constructor(
                 }
             }
 
-            ExerciseKey.sit_up -> {
+            ExerciseKey.situp -> {
                 sitUpChecker.checkExercise(convertedLandmarks)
                 _uiState.update { currentState ->
                     currentState.copy(
@@ -227,7 +226,7 @@ constructor(
     private fun convertTitleToKey(title: String): ExerciseKey? {
         return when (title) {
             "Push Up" -> ExerciseKey.push_up
-            "Sit Up" -> ExerciseKey.sit_up
+            "Sit Up" -> ExerciseKey.situp
             "Jumping Jack" -> ExerciseKey.jumping_jack
             "Squat" -> ExerciseKey.squat
             else -> null
