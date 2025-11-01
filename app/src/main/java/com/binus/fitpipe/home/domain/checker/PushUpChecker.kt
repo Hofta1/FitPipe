@@ -143,7 +143,7 @@ class PushUpChecker(
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, elbowAngle: Float, armAngle: Float) {
-        if (elbowAngle.isInTolerance(180f, tolerance = 30f) && armAngle.isInTolerance(75f, tolerance = 40f)) {
+        if (elbowAngle.isInTolerance(170f) && armAngle.isInTolerance(75f, tolerance = 40f)) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
             Log.d("PushUpChecker", "Push Up started")
@@ -191,6 +191,7 @@ class PushUpChecker(
         }
         landmarkDataManager.clear()
         exerciseStateManager.reset()
+        badFormFrameCount = 0
     }
 
     private fun handleFailed() {
