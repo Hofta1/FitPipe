@@ -214,7 +214,7 @@ class JumpingJackChecker(
         rightHipAngle: Float,
     ) {
         if (leftArmAngle >= landmarkDataManager.getLastLeftArmAngle() ||
-            rightArmAngle >= landmarkDataManager.getLastRightArmAngle() &&
+            rightArmAngle >= landmarkDataManager.getLastRightArmAngle() ||
             leftHipAngle >= landmarkDataManager.getLastLeftHipAngle() ||
             rightHipAngle >= landmarkDataManager.getLastRightHipAngle()) {
             if (leftArmAngle > 150f && rightArmAngle > 150f &&
@@ -240,10 +240,21 @@ class JumpingJackChecker(
 
         val isArmsDown = leftArmAngle < 35f && rightArmAngle < 35f
         val isLegsTogether = leftHipAngle < 20f && rightHipAngle < 20f
-        landmarkDataManager.addLandmarks(landmarks)
-        if (isArmsDown && isLegsTogether) {
-            exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
-            Log.d("JumpingJackChecker", "Jumping Jack completed")
+        if (leftArmAngle <= landmarkDataManager.getLastLeftArmAngle() ||
+            rightArmAngle <= landmarkDataManager.getLastRightArmAngle() ||
+            leftHipAngle <= landmarkDataManager.getLastLeftHipAngle() ||
+            rightHipAngle <= landmarkDataManager.getLastRightHipAngle()) {
+            landmarkDataManager.addLandmarks(landmarks)
+            if (isArmsDown && isLegsTogether) {
+                exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
+                Log.d("JumpingJackChecker", "Jumping Jack completed")
+            }
+        } else if ( leftArmAngle - landmarkDataManager.getLastLeftArmAngle() > 10f &&
+            rightArmAngle - landmarkDataManager.getLastRightArmAngle() > 10f &&
+            leftHipAngle - landmarkDataManager.getLastLeftHipAngle() > 10f &&
+            rightHipAngle - landmarkDataManager.getLastRightHipAngle() > 10f) {
+            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+            statusString = "Did not reach maximum depression"
         }
     }
 
