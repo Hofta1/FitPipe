@@ -206,6 +206,7 @@ class SitUpChecker(
         }
         exerciseStateManager.reset()
         landmarkDataManager.clear()
+        badFormFrameCount = 0
     }
 
     private fun handleFailed() {
