@@ -78,6 +78,7 @@ class SquatChecker (
 
 
         return if(leftCounter > rightCounter){
+            isUsingLeft = true
             SquatPoints(nose, leftShoulder, leftHip, leftAnkle, leftFoot, leftKnee)
         }else{
             isUsingLeft = false
@@ -93,13 +94,12 @@ class SquatChecker (
             val currentShoulderXFloat = points.shoulder.x
             val shoulderXDifference = abs(currentShoulderXFloat - firstShoulderXFloat)
             isShoulderDifferenceBig = shoulderXDifference > 0.05f
-            Log.d("SquatChecker", "shoulder difference: $shoulderXDifference")
         }
 
         val kneeOverFoot = if(isUsingLeft) {
-            points.foot.x - points.knee.x < -0.05f
+            points.foot.x - points.knee.x < -0.1f
         } else {
-            points.knee.x - points.foot.x < -0.05f
+            points.knee.x - points.foot.x < -0.1f
         }
         if (kneeOverFoot) {
             statusString = "Knee can't be over foot"

@@ -23,14 +23,9 @@ class HomeRepositoryImpl
 
 data class MediaPipeScanResponse(
     @SerializedName("status")
-    val status: Boolean,
-    @SerializedName("feedback")
-    val feedback: MediaPipeScanFeedback,
-)
-
-data class MediaPipeScanFeedback(
-    @SerializedName("landmarks")
-    val landmarkFeedback: String,
-    @SerializedName("angles")
-    val angleFeedback: String,
+    val status: Boolean?,
+    @SerializedName("formattedFeedback")
+    val formattedFeedback: String?,
+    @SerializedName("fullFeedback")
+    val fullFeedback: String?,
 )

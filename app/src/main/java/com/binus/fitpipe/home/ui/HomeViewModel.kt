@@ -39,6 +39,8 @@ constructor(
     private lateinit var squatChecker: SquatChecker
     private var currentExerciseTitle: String = ""
 
+    private val fullErrorMessages: MutableList<String> = mutableListOf()
+
     private fun initializeChecker(exerciseTitle: String) {
         val exerciseKey = convertTitleToKey(exerciseTitle)
         when (exerciseKey) {
@@ -197,10 +199,6 @@ constructor(
         exerciseTitle: String,
         convertedLandmarks: List<List<ConvertedLandmark>>,
     ) {
-        _uiState.update {
-            currentState ->
-            currentState.copy(exerciseCount = currentState.exerciseCount + 1)
-        }
         val floatLandmarkList = mutableListOf<List<Float>>()
         convertedLandmarks.forEach { convertedLandmark->
             floatLandmarkList.add(convertLandmarkToFloatSequence(convertedLandmark))
@@ -217,10 +215,20 @@ constructor(
                 result.onSuccess {
                     // Handle success, e.g., show a success message or update UI
                     val data = result.getOrNull()
-                    Log.d("HomeViewModel", "Pose landmark sent successfully: $data")
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            formattedStatusString = data?.formattedFeedback ?: "",
+                        )
+                        if(data?.status == true){
+                            currentState.copy(
+                                exerciseCount = currentState.exerciseCount + 1,
+                            )
+                        } else {
+                            currentState
+                        }
+                    }
+                    fullErrorMessages.add(data?.fullFeedback ?: "")
                 }.onFailure { exception ->
-                    // Handle failure, e.g., show an error message
-                    Log.d("HomeViewModel", "Failed to send pose landmark: ${exception.message}")
                 }
             }
     }

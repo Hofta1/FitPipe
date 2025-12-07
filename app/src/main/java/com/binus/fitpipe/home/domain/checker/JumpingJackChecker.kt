@@ -88,7 +88,6 @@ class JumpingJackChecker(
             )
         if (badFormFrameCount >= BAD_FORM_THRESHOLD) {
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
-            Log.d("JumpingJackChecker", "Exercise failed due to bad form")
         }
         return true
     }
@@ -182,7 +181,6 @@ class JumpingJackChecker(
         if (isArmsDown && isLegsTogether) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
-            Log.d("JumpingJackChecker", "Jumping Jack started")
         }
     }
 
@@ -202,7 +200,6 @@ class JumpingJackChecker(
         if (isAngleDifferenceBigEnough) {
             landmarkDataManager.addLandmarks(landmarks)
             exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
-            Log.d("JumpingJackChecker", "Jumping Jack started")
         }
     }
 
@@ -220,7 +217,6 @@ class JumpingJackChecker(
             if (leftArmAngle > 150f && rightArmAngle > 150f &&
                 (leftHipAngle + rightHipAngle).isInTolerance(75f, tolerance = 36f)) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
-                Log.d("JumpingJackChecker", "Jumping Jack going down")
             }
             landmarkDataManager.addLandmarks(landmarks)
         }else if(landmarkDataManager.getLastLeftHipAngle() - leftHipAngle > 10f ||
@@ -247,7 +243,6 @@ class JumpingJackChecker(
             landmarkDataManager.addLandmarks(landmarks)
             if (isArmsDown && isLegsTogether) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
-                Log.d("JumpingJackChecker", "Jumping Jack completed")
             }
         } else if ( leftArmAngle - landmarkDataManager.getLastLeftArmAngle() > 10f &&
             rightArmAngle - landmarkDataManager.getLastRightArmAngle() > 10f &&
@@ -260,7 +255,6 @@ class JumpingJackChecker(
 
     private fun handleCompleted() {
         if (landmarkDataManager.getLandmarkCount() >= 60) {
-            Log.d("JumpingJackChecker", "Too many landmarks: ${landmarkDataManager.getLandmarkCount()}")
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }else{
             onExerciseCompleted(landmarkDataManager.getAllLandmarks())

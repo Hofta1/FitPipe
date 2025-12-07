@@ -184,7 +184,6 @@ class PushUpChecker(
 
     private fun handleCompleted() {
         if (landmarkDataManager.getLandmarkCount() >= 60) {
-            Log.d("PushUpChecker", "Too many landmarks: ${landmarkDataManager.getLandmarkCount()}")
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }else{
             onExerciseCompleted(landmarkDataManager.getAllLandmarks())
