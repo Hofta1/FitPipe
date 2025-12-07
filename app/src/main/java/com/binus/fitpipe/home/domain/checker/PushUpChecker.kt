@@ -19,6 +19,9 @@ class PushUpChecker(
 ): ExerciseChecker() {
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
+        if(exerciseStateManager.getCurrentState() == ExerciseState.EXERCISE_FAILED){
+            handleFailed()
+        }
 
         if (!isFormCorrect(requiredPoints)) {
             isFormOkay = false
@@ -171,7 +174,7 @@ class PushUpChecker(
 
     private fun checkUpMax(landmarks: List<ConvertedLandmark>, elbowAngle: Float) {
         if (elbowAngle >= landmarkDataManager.getLastElbowAngle()) {
-            if (elbowAngle.isInTolerance(landmarkDataManager.getFirstElbowAngle())) {
+            if (elbowAngle.isInTolerance(170f)) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("PushUpChecker", "Push Up completed")
             }

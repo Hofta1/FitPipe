@@ -195,7 +195,7 @@ private fun PoseScanLayoutScreen(
             Column {
                 Row (
                     modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     BackButton { onBackPressed() }
                     Text(

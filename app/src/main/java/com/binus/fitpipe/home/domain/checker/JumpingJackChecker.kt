@@ -65,6 +65,10 @@ class JumpingJackChecker(
             Float2(points.middleHip.x, points.rightAnkle.y)
         )
 
+        if(exerciseStateManager.getCurrentState() == ExerciseState.EXERCISE_FAILED){
+            handleFailed()
+        }
+
         if (!isFormCorrect(
             leftKneeAngle,
             rightKneeAngle,
