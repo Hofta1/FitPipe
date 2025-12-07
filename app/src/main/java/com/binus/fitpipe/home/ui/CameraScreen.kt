@@ -227,7 +227,7 @@ private fun PoseScanLayoutScreen(
                     )
                     Text(
                         text = formattedStatus,
-                        style = Typo.MediumSixteen,
+                        style = Typo.MediumEighteen,
                         color = White80,
                         textAlign = TextAlign.Center,
                         modifier = modifier

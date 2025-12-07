@@ -8,6 +8,7 @@ data class HomeUiState(
     val exerciseCount: Int = 0,
     val formattedStatusString: String = "",
     val isFormOkay: Boolean = false,
+    val isUseAPIStatus: Boolean = false,
 )
 
 data class HomeRowData(

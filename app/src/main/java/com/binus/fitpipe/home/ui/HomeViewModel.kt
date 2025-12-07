@@ -150,30 +150,48 @@ constructor(
             ExerciseKey.push_up -> {
                 pushUpChecker.checkExercise(convertedLandmarks)
                 _uiState.update { currentState ->
-                    currentState.copy(
-                        formattedStatusString = pushUpChecker.getFormattedStatus(),
-                        isFormOkay = pushUpChecker.getFormStatus(),
-                    )
+                    if(!uiState.value.isUseAPIStatus){
+                        currentState.copy(
+                            formattedStatusString = sitUpChecker.getFormattedStatus(),
+                            isFormOkay = sitUpChecker.getFormStatus(),
+                        )
+                    } else {
+                        currentState.copy(
+                            isFormOkay = sitUpChecker.getFormStatus(),
+                        )
+                    }
                 }
             }
 
             ExerciseKey.situp -> {
                 sitUpChecker.checkExercise(convertedLandmarks)
                 _uiState.update { currentState ->
-                    currentState.copy(
-                        formattedStatusString = sitUpChecker.getFormattedStatus(),
-                        isFormOkay = sitUpChecker.getFormStatus(),
-                    )
+                    if(!uiState.value.isUseAPIStatus){
+                        currentState.copy(
+                            formattedStatusString = sitUpChecker.getFormattedStatus(),
+                            isFormOkay = sitUpChecker.getFormStatus(),
+                        )
+                    } else {
+                        currentState.copy(
+                            isFormOkay = sitUpChecker.getFormStatus(),
+                        )
+                    }
                 }
             }
 
             ExerciseKey.jumping_jack -> {
                 jumpingJackChecker.checkExercise(convertedLandmarks)
                 _uiState.update { currentState ->
-                    currentState.copy(
-                        formattedStatusString = jumpingJackChecker.getFormattedStatus(),
-                        isFormOkay = jumpingJackChecker.getFormStatus(),
-                    )
+                    if(!uiState.value.isUseAPIStatus){
+                        currentState.copy(
+                            formattedStatusString = sitUpChecker.getFormattedStatus(),
+                            isFormOkay = sitUpChecker.getFormStatus(),
+                        )
+                    } else {
+                        currentState.copy(
+                            isFormOkay = sitUpChecker.getFormStatus(),
+                        )
+                    }
                 }
                 // Implement jumping jack angle checks if needed
             }
@@ -181,10 +199,16 @@ constructor(
             ExerciseKey.squat -> {
                 squatChecker.checkExercise(convertedLandmarks)
                 _uiState.update { currentState ->
-                    currentState.copy(
-                        formattedStatusString = squatChecker.getFormattedStatus(),
-                        isFormOkay = squatChecker.getFormStatus(),
-                    )
+                    if(!uiState.value.isUseAPIStatus){
+                        currentState.copy(
+                            formattedStatusString = sitUpChecker.getFormattedStatus(),
+                            isFormOkay = sitUpChecker.getFormStatus(),
+                        )
+                    } else {
+                        currentState.copy(
+                            isFormOkay = sitUpChecker.getFormStatus(),
+                        )
+                    }
                 }
                 // Implement squat angle checks if needed
             }
@@ -203,7 +227,6 @@ constructor(
         convertedLandmarks.forEach { convertedLandmark->
             floatLandmarkList.add(convertLandmarkToFloatSequence(convertedLandmark))
         }
-        Log.d("HomeViewModel", "Sending landmark data for $floatLandmarkList")
             val exerciseKey = convertTitleToKey(exerciseTitle)
             viewModelScope.launch {
                 val result = homeRepository.sendPoseLandmark(
@@ -216,15 +239,17 @@ constructor(
                     // Handle success, e.g., show a success message or update UI
                     val data = result.getOrNull()
                     _uiState.update { currentState ->
-                        currentState.copy(
-                            formattedStatusString = data?.formattedFeedback ?: "",
-                        )
                         if(data?.status == true){
                             currentState.copy(
+                                formattedStatusString = data.formattedFeedback ?: "",
                                 exerciseCount = currentState.exerciseCount + 1,
+                                isUseAPIStatus = true
                             )
                         } else {
-                            currentState
+                            currentState.copy(
+                                formattedStatusString = data?.formattedFeedback ?: "",
+                                isUseAPIStatus = true
+                            )
                         }
                     }
                     fullErrorMessages.add(data?.fullFeedback ?: "")
