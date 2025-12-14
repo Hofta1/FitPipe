@@ -1,6 +1,5 @@
 package com.binus.fitpipe.home.ui
 
-import android.inputmethodservice.Keyboard.Row
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,7 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.binus.fitpipe.ExerciseKey
 import com.binus.fitpipe.R
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
@@ -35,13 +34,11 @@ import com.binus.fitpipe.ui.theme.White80
 import com.example.yourapp.ui.components.FPScaffold
 
 @Composable
-internal fun HomeScreen(
-    onItemClick: (String) -> Unit
-){
+internal fun HomeScreen(onItemClick: (String) -> Unit) {
     FitPipeTheme {
         HomeScreen(
             modifier = Modifier,
-            onItemClick = onItemClick
+            onItemClick = onItemClick,
         )
     }
 }
@@ -49,7 +46,7 @@ internal fun HomeScreen(
 @Composable
 private fun HomeScreen(
     modifier: Modifier = Modifier,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
     val state = viewModel.uiState.collectAsState()
@@ -57,29 +54,30 @@ private fun HomeScreen(
     Box(
         modifier = modifier.padding(horizontal = 30.dp),
     ) {
-        Column(){
+        Column {
             Spacer(Modifier.size(75.dp))
             Text(
                 text = "Hello,",
                 style = Typo.ExtraBoldTwentyFour,
-                color = White80
+                color = White80,
             )
             Spacer(Modifier.size(14.dp))
             Text(
                 text = "Welcome to Pose Tracker",
                 style = Typo.MediumSixteen,
-                color = White80
+                color = White80,
             )
             Spacer(Modifier.size(48.dp))
             LazyColumn(
-                state = lazyListState
+                state = lazyListState,
             ) {
                 itemsIndexed(
                     state.value.rows,
-                    key = { _, item -> item.title } // Use the string as the key for each item
+                    key = { _, item -> item.title }, // Use the string as the key for each item
                 ) { index, item ->
                     ExerciseRow(
                         title = item.title,
+                        exerciseKey = item.exerciseKey,
                         imageResourceId = item.imageResourceId,
                         onItemClick = onItemClick,
                     )
@@ -93,32 +91,36 @@ private fun HomeScreen(
 private fun ExerciseRow(
     modifier: Modifier = Modifier,
     title: String,
+    exerciseKey: ExerciseKey,
     imageResourceId: Int,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
 ) {
     Row(
-        modifier = modifier
-            .padding(bottom = 22.dp)
-            .clip(RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp, topStart = 16.dp, bottomStart = 16.dp))
-            .fillMaxWidth()
-            .height(78.dp)
-            .background(color = Black70)
-            .clickable { onItemClick(title) },
-    ){
+        modifier =
+            modifier
+                .padding(bottom = 22.dp)
+                .clip(RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp, topStart = 16.dp, bottomStart = 16.dp))
+                .fillMaxWidth()
+                .height(78.dp)
+                .background(color = Black70)
+                .clickable { onItemClick(title) },
+    ) {
         Text(
             text = title,
             style = Typo.BoldTwentyFour,
             color = White80,
-            modifier = Modifier
-                .padding(top = 24.dp, start = 28.dp)
-                .weight(1f)
+            modifier =
+                Modifier
+                    .padding(top = 24.dp, start = 28.dp)
+                    .weight(1f),
         )
         Image(
             painter = painterResource(id = imageResourceId),
             contentDescription = null,
-            modifier = Modifier
-                .padding(end = 28.dp)
-                .fillMaxHeight()
+            modifier =
+                Modifier
+                    .padding(end = 28.dp)
+                    .fillMaxHeight(),
         )
     }
 }
@@ -128,7 +130,7 @@ private fun ExerciseRow(
 private fun HomeScreenPreview() {
     FPScaffold {
         HomeScreen(
-            onItemClick = {}
+            onItemClick = {},
         )
     }
 }
@@ -140,7 +142,8 @@ private fun ExerciseRowPreview() {
         ExerciseRow(
             title = "Push Up",
             imageResourceId = R.drawable.jumping_jack_icon, // Replace with a valid image resource ID
-            onItemClick = {}
+            onItemClick = {},
+            exerciseKey = ExerciseKey.push_up,
         )
     }
 }

@@ -1,6 +1,5 @@
 package com.binus.fitpipe.home.ui
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,8 +19,9 @@ class HomeActivity : ComponentActivity() {
         setContent {
             FitPipeTheme {
                 FPScaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
+                    modifier =
+                        Modifier
+                            .fillMaxSize(),
                 ) { innerPadding ->
                     AppNavHost()
                 }
@@ -30,6 +30,5 @@ class HomeActivity : ComponentActivity() {
     }
 
     private fun goToCameraActivity() {
-
     }
 }

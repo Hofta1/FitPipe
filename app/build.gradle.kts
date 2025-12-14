@@ -10,51 +10,37 @@ plugins {
 ktlint {
     version.set("1.2.1") // The version of the core Ktlint engine to use
     android.set(true) // Use the official Android code style guidelines
-
-    // Example of disabling a specific rule
-    disabledRules.add("no-wildcard-imports")
-
-    // You can also create a filter to include/exclude files
-    filter {
-        // exclude { element -> element.file.path.contains("generated/") }
-        include("src/main/**/*.kt")
-        include("src/test/**/*.kt")
-    }
 }
 
 android {
     namespace = "com.binus.fitpipe"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.binus.fitpipe"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    androidResources{
+    androidResources {
         noCompress += "task"
     }
-
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -87,16 +73,21 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    //Camera
+    // Camera
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.compose)
+    implementation(libs.romainguy.kotlin.math)
 
-    //MediaPipe
-    implementation(libs.mediapipe)
+    // MediaPipe
+    implementation(libs.mediapipe.tasks.vision)
 
-    //Coroutine
+    // Coroutine
     implementation(libs.kotlinx.coroutines.android)
+
+    // Chucker
+    debugImplementation(libs.chucker)
+    releaseImplementation(libs.chucker.no.op)
 }
