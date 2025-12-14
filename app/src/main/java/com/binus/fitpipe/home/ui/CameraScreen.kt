@@ -225,20 +225,21 @@ private fun PoseScanLayoutScreen(
                                 shape = CircleShape
                             )
                     )
-                    Text(
-                        text = formattedStatus,
-                        style = Typo.MediumEighteen,
-                        color = White80,
-                        textAlign = TextAlign.Center,
-                        modifier = modifier
-                            .background(
-                                color = Black70,
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .padding(start = 8.dp)
-                    )
                 }
             }
+            Text(
+                text = formattedStatus,
+                style = Typo.MediumEighteen,
+                color = White80,
+                textAlign = TextAlign.Center,
+                modifier = modifier
+                    .background(
+                        color = Black70,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(start = 8.dp)
+                    .align(Alignment.BottomCenter)
+            )
         }
     }
 }

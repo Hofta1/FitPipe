@@ -118,7 +118,7 @@ class SitUpChecker(
         var kneeAngleChanged = false
 
         if(landmarkDataManager.getLandmarkCount() > 0){
-            kneeAngleChanged = abs(kneeAngle - landmarkDataManager.getFirstKneeAngle(isUsingLeft)) > 20f
+            kneeAngleChanged = abs(kneeAngle - landmarkDataManager.getFirstKneeAngle(isUsingLeft)) > 40f
         }
         if(kneeAngleChanged){
             Log.d("","")

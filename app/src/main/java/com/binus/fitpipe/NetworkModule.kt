@@ -30,7 +30,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://posetracker-cloud-822089112643.asia-southeast2.run.app/")
+            .baseUrl("https://dev-posetracker-cloud-822089112643.asia-southeast2.run.app/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
