@@ -60,7 +60,7 @@ class LandmarkDataManager {
         } ?: 0f
     }
 
-    fun getLastHipAngle(): Float {
+    fun getLastHipAngle(isLeft: Boolean): Float {
         val lastLandmark = landmarkList.lastOrNull()
         return lastLandmark?.let { landmark ->
             val lastShoulder = landmark[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]

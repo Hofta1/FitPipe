@@ -112,16 +112,13 @@ class SitUpChecker(
             points.leftKnee.toFloat3(),
             points.leftAnkle.toFloat3()
         )
-        val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 100f)
-        val isFeetOnTheGround = abs(points.leftHip.y - points.leftFoot.y) < 0.1f
+        val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 60f)
+        val isFeetOnTheGround = abs(points.leftHip.y - points.leftFoot.y) < 0.05f
 
         var kneeAngleChanged = false
 
         if(landmarkDataManager.getLandmarkCount() > 0){
             kneeAngleChanged = abs(kneeAngle - landmarkDataManager.getFirstKneeAngle(isUsingLeft)) > 40f
-        }
-        if(kneeAngleChanged){
-            Log.d("","")
         }
 
         if(!kneeAngleCorrect) {
@@ -131,10 +128,14 @@ class SitUpChecker(
                 "Knees Bent Too Much"
             }
         } else if(!isFeetOnTheGround) {
-            statusString = "Feet Not On Ground"
+//            statusString = "Feet Not On Ground"
         }
 
-        return kneeAngleCorrect && isFeetOnTheGround && !kneeAngleChanged
+        if(kneeAngleChanged){
+            statusString = "Feet move too much"
+        }
+
+        return kneeAngleCorrect && !kneeAngleChanged
     }
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: SitUpPoints) {
@@ -146,7 +147,7 @@ class SitUpChecker(
 
         when (exerciseStateManager.getCurrentState()) {
             ExerciseState.WAITING_TO_START -> checkStartingPosition(landmarks, hipAngle)
-            ExerciseState.STARTED -> checkGoingUp(landmarks, hipAngle)
+            ExerciseState.STARTED -> checkGoingUp(landmarks, hipAngle, points.leftShoulder.y)
             ExerciseState.GOING_FLEXION -> checkUpMax(landmarks, hipAngle, points.leftShoulder.y)
             ExerciseState.GOING_EXTENSION -> checkDownMax(landmarks, hipAngle, points.leftShoulder.y)
             ExerciseState.EXERCISE_COMPLETED -> handleCompleted()
@@ -155,19 +156,31 @@ class SitUpChecker(
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, hipAngle: Float) {
-        if (hipAngle.isInTolerance(130f, tolerance = 40f)) {
+        if (hipAngle.isInTolerance(130f, tolerance = 20f)) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
             Log.d("SitUpChecker", "Sit Up started")
         }
     }
 
-    private fun checkGoingUp(landmarks: List<ConvertedLandmark>, hipAngle: Float) {
-        val angleDifference = abs(hipAngle - landmarkDataManager.getLastHipAngle())
-        if (hipAngle < landmarkDataManager.getLastHipAngle() && angleDifference > 5f) {
+    private fun checkGoingUp(landmarks: List<ConvertedLandmark>, hipAngle: Float, shoulderY: Float) {
+        val enum = if(isUsingLeft) MediaPipeKeyPointEnum.LEFT_SHOULDER else MediaPipeKeyPointEnum.RIGHT_SHOULDER
+        val angleDifference = abs(hipAngle - landmarkDataManager.getLastHipAngle(isUsingLeft))
+        if (hipAngle < landmarkDataManager.getLastHipAngle(isUsingLeft) && angleDifference > 10f && shoulderY - landmarkDataManager.getLastY(enum) > 0.05f) {
             landmarkDataManager.addLandmarks(landmarks)
             exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
             Log.d("SitUpChecker", "Sit Up Going Up")
+        }
+    }
+
+    private fun checkUpMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, shoulderY: Float) {
+        val enum = if(isUsingLeft) MediaPipeKeyPointEnum.LEFT_SHOULDER else MediaPipeKeyPointEnum.RIGHT_SHOULDER
+        if (hipAngle <= landmarkDataManager.getLastHipAngle(isUsingLeft) && shoulderY > landmarkDataManager.getLastY(enum) ) {
+            if (hipAngle < 90f) {
+                exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
+                Log.d("SitUpChecker", "Sit Up going down")
+            }
+            landmarkDataManager.addLandmarks(landmarks)
         }else if(hipAngle > 130f){
             // User going back to starting position without completing the sit up
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
@@ -175,21 +188,12 @@ class SitUpChecker(
         }
     }
 
-    private fun checkUpMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, shoulderY: Float) {
-        val enum = if(isUsingLeft) MediaPipeKeyPointEnum.LEFT_SHOULDER else MediaPipeKeyPointEnum.RIGHT_SHOULDER
-        if (hipAngle <= landmarkDataManager.getLastHipAngle() && shoulderY > landmarkDataManager.getLastY(enum) ) {
-            if (hipAngle.isInTolerance(90f)) {
-                exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
-                Log.d("SitUpChecker", "Sit Up going down")
-            }
-            landmarkDataManager.addLandmarks(landmarks)
-        }
-    }
-
     private fun checkDownMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, shoulderY: Float) {
         val enum = if(isUsingLeft) MediaPipeKeyPointEnum.LEFT_SHOULDER else MediaPipeKeyPointEnum.RIGHT_SHOULDER
-        if (hipAngle >= landmarkDataManager.getLastHipAngle() && shoulderY < landmarkDataManager.getLastY(enum)) {
-            landmarkDataManager.addLandmarks(landmarks)
+        val isShoulderDeclining = shoulderY < landmarkDataManager.getLastY(enum)
+        landmarkDataManager.addLandmarks(landmarks)
+        Log.d("SitUpChecker", "hipAngle: $hipAngle lastHipAngle ${landmarkDataManager.getLastHipAngle(isUsingLeft)} shoulderY: $shoulderY lastShoulderY: ${landmarkDataManager.getLastY(enum)}")
+        if (hipAngle >= landmarkDataManager.getLastHipAngle(isUsingLeft) && isShoulderDeclining) {
             if (hipAngle.isInTolerance(130f, tolerance = 40f)) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("SitUpChecker", "Sit Up completed")

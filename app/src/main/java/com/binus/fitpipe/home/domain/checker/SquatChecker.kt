@@ -145,9 +145,9 @@ class SquatChecker (
     }
 
     private fun checkGoingDown(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
-        val hipAngleDifference = abs(hipAngle - landmarkDataManager.getLastHipAngle())
+        val hipAngleDifference = abs(hipAngle - landmarkDataManager.getLastHipAngle(isUsingLeft))
         val kneeAngleDifference = abs(kneeAngle - landmarkDataManager.getLastKneeAngle())
-        val hipAngleOkay = hipAngle < landmarkDataManager.getLastHipAngle() && hipAngleDifference > 5f
+        val hipAngleOkay = hipAngle < landmarkDataManager.getLastHipAngle(isUsingLeft) && hipAngleDifference > 5f
         val kneeAngleOkay = kneeAngle < landmarkDataManager.getLastKneeAngle() && kneeAngleDifference > 5f
         if (hipAngleOkay && kneeAngleOkay) {
             landmarkDataManager.addLandmarks(landmarks)
@@ -157,7 +157,7 @@ class SquatChecker (
     }
 
     private fun checkDownMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
-        if (hipAngle <= landmarkDataManager.getLastHipAngle() || kneeAngle <= landmarkDataManager.getLastKneeAngle()) {
+        if (hipAngle <= landmarkDataManager.getLastHipAngle(isUsingLeft) || kneeAngle <= landmarkDataManager.getLastKneeAngle()) {
             Log.d("SquatChecker", "Current Hip Angle: $hipAngle, Current Knee Angle: $kneeAngle")
             if (hipAngle < 85f && kneeAngle < 85f) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
@@ -172,7 +172,7 @@ class SquatChecker (
     }
 
     private fun checkUpMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
-        if (hipAngle >= landmarkDataManager.getLastHipAngle() || kneeAngle >= landmarkDataManager.getLastKneeAngle()) {
+        if (hipAngle >= landmarkDataManager.getLastHipAngle(isUsingLeft) || kneeAngle >= landmarkDataManager.getLastKneeAngle()) {
             if (hipAngle.isInTolerance(180f) && kneeAngle.isInTolerance(180f)) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("SquatChecker", "Squat completed")
