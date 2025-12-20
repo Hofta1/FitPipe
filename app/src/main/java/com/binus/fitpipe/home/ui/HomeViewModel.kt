@@ -241,13 +241,13 @@ constructor(
                     _uiState.update { currentState ->
                         if(data?.status == true){
                             currentState.copy(
-                                formattedStatusString = data.formattedFeedback ?: "",
+                                formattedStatusString = data.fullFeedback ?: "",
                                 exerciseCount = currentState.exerciseCount + 1,
                                 isUseAPIStatus = true
                             )
                         } else {
                             currentState.copy(
-                                formattedStatusString = data?.formattedFeedback ?: "",
+                                formattedStatusString = data?.fullFeedback ?: "",
                                 isUseAPIStatus = true
                             )
                         }

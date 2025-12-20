@@ -100,9 +100,9 @@ class SquatChecker (
         }
 
         val kneeOverFoot = if(isUsingLeft) {
-            points.foot.x - points.knee.x < -0.1f
+            points.foot.x - points.knee.x < -0.07f
         } else {
-            points.knee.x - points.foot.x < -0.1f
+            points.knee.x - points.foot.x < -0.07f
         }
         if (kneeOverFoot) {
             statusString = "Knee can't be over foot"

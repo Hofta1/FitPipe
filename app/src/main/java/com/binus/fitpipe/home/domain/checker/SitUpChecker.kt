@@ -106,7 +106,7 @@ class SitUpChecker(
     }
 
     private fun isFormCorrect(points: SitUpPoints): Boolean {
-        val idealKneeAngle = 80f
+        val idealKneeAngle = 60f
         val kneeAngle = get3dAngleBetweenPoints(
             points.leftHip.toFloat3(),
             points.leftKnee.toFloat3(),
@@ -194,7 +194,7 @@ class SitUpChecker(
         landmarkDataManager.addLandmarks(landmarks)
         Log.d("SitUpChecker", "hipAngle: $hipAngle lastHipAngle ${landmarkDataManager.getLastHipAngle(isUsingLeft)} shoulderY: $shoulderY lastShoulderY: ${landmarkDataManager.getLastY(enum)}")
         if (hipAngle >= landmarkDataManager.getLastHipAngle(isUsingLeft) && isShoulderDeclining) {
-            if (hipAngle.isInTolerance(130f, tolerance = 40f)) {
+            if (hipAngle.isInTolerance(130f, tolerance = 50f)) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("SitUpChecker", "Sit Up completed")
             }

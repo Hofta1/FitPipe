@@ -77,7 +77,7 @@ class PoseLandmarkerHelper(private val context: Context) {
                     convertedLandmarks.add(
                         ConvertedLandmark(
                             x = landmark.x(),
-                            y = landmark.y(),
+                            y = 1f - landmark.y(),
                             z = landmark.z(),
                             visibility = landmark.visibility(),
                             presence = landmark.presence(),
