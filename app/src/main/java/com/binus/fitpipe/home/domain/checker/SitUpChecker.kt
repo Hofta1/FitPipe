@@ -106,7 +106,7 @@ class SitUpChecker(
     }
 
     private fun isFormCorrect(points: SitUpPoints): Boolean {
-        val idealKneeAngle = 60f
+        val idealKneeAngle = 70f
         val kneeAngle = get3dAngleBetweenPoints(
             points.leftHip.toFloat3(),
             points.leftKnee.toFloat3(),

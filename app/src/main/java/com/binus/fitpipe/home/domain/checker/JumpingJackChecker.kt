@@ -183,6 +183,7 @@ class JumpingJackChecker(
         val isArmsDown = leftArmAngle < 35f && rightArmAngle < 35f
         val isLegsTogether = leftHipAngle < 20f && rightHipAngle < 20f
         if (isArmsDown && isLegsTogether) {
+            Log.d("JumpingJackChecker", "Start")
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
         }
@@ -202,6 +203,7 @@ class JumpingJackChecker(
         val isAngleDifferenceBigEnough = leftArmAngleDifference > 5f && rightArmAngleDifference > 5f &&
                 leftHipAngleDifference > 5f && rightHipAngleDifference > 5f
         if (isAngleDifferenceBigEnough) {
+            Log.d("JumpingJackChecker", "Flex")
             landmarkDataManager.addLandmarks(landmarks)
             exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
         }
@@ -220,6 +222,7 @@ class JumpingJackChecker(
             rightHipAngle >= landmarkDataManager.getLastRightHipAngle()) {
             if (leftArmAngle > 150f && rightArmAngle > 150f &&
                 (leftHipAngle + rightHipAngle).isInTolerance(75f, tolerance = 36f)) {
+                Log.d("JumpingJackChecker", "Extend")
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
             }
             landmarkDataManager.addLandmarks(landmarks)
@@ -238,14 +241,15 @@ class JumpingJackChecker(
         rightHipAngle: Float,
     ) {
 
-        val isArmsDown = leftArmAngle < 35f && rightArmAngle < 35f
-        val isLegsTogether = leftHipAngle < 20f && rightHipAngle < 20f
+        val isArmsDown = leftArmAngle < 60f && rightArmAngle < 60f
+        val isLegsTogether = leftHipAngle < 40f && rightHipAngle < 40f
         if (leftArmAngle <= landmarkDataManager.getLastLeftArmAngle() ||
             rightArmAngle <= landmarkDataManager.getLastRightArmAngle() ||
             leftHipAngle <= landmarkDataManager.getLastLeftHipAngle() ||
             rightHipAngle <= landmarkDataManager.getLastRightHipAngle()) {
             landmarkDataManager.addLandmarks(landmarks)
             if (isArmsDown && isLegsTogether) {
+                Log.d("JumpingJackChecker", "Complete")
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
             }
         } else if ( leftArmAngle - landmarkDataManager.getLastLeftArmAngle() > 10f &&
@@ -258,6 +262,7 @@ class JumpingJackChecker(
     }
 
     private fun handleCompleted() {
+        Log.d("JumpingJackChecker", "Completed sendinh")
         if (landmarkDataManager.getLandmarkCount() >= 60) {
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }else{

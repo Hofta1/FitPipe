@@ -26,15 +26,13 @@ class SquatChecker (
         if (!isFormCorrect(requiredPoints)) {
             isFormOkay = false
             badFormFrameCount++
-
-            if (badFormFrameCount >= BAD_FORM_THRESHOLD &&
-                exerciseStateManager.getCurrentState() != ExerciseState.WAITING_TO_START) {
-                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
-                Log.d("SquatChecker", "Exercise failed due to bad form")
-            }
             return false
         }
 
+        if(exerciseStateManager.getCurrentState() != ExerciseState.WAITING_TO_START && badFormFrameCount >= BAD_FORM_THRESHOLD){
+            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+            Log.d("SquatChecker", "Exercise failed due to bad form")
+        }
         isFormOkay = true
         processExerciseState(convertedLandmarks, requiredPoints)
         return true
@@ -159,15 +157,15 @@ class SquatChecker (
     private fun checkDownMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
         if (hipAngle <= landmarkDataManager.getLastHipAngle(isUsingLeft) || kneeAngle <= landmarkDataManager.getLastKneeAngle()) {
             Log.d("SquatChecker", "Current Hip Angle: $hipAngle, Current Knee Angle: $kneeAngle")
+            landmarkDataManager.addLandmarks(landmarks)
             if (hipAngle < 85f && kneeAngle < 85f) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
                 Log.d("SquatChecker", "Squat going up")
             }
-            landmarkDataManager.addLandmarks(landmarks)
         }else if (kneeAngle > 150f) { //when the user goes up again without reaching the down max
             Log.d("SquatChecker", "Knee Angle too high: $kneeAngle")
             statusString = "Did not go down enough"
-            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+            badFormFrameCount++
         }
     }
 
@@ -178,9 +176,6 @@ class SquatChecker (
                 Log.d("SquatChecker", "Squat completed")
             }
             landmarkDataManager.addLandmarks(landmarks)
-        }else if (kneeAngle < 50f) { //when user goes too deep
-            statusString = "Knee bent too much"
-            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
     }
 

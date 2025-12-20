@@ -223,12 +223,12 @@ constructor(
         exerciseTitle: String,
         convertedLandmarks: List<List<ConvertedLandmark>>,
     ) {
-        val floatLandmarkList = mutableListOf<List<Float>>()
-        convertedLandmarks.forEach { convertedLandmark->
-            floatLandmarkList.add(convertLandmarkToFloatSequence(convertedLandmark))
-        }
-            val exerciseKey = convertTitleToKey(exerciseTitle)
             viewModelScope.launch {
+                val floatLandmarkList = mutableListOf<List<Float>>()
+                convertedLandmarks.forEach { convertedLandmark->
+                    floatLandmarkList.add(convertLandmarkToFloatSequence(convertedLandmark))
+                }
+                val exerciseKey = convertTitleToKey(exerciseTitle)
                 val result = homeRepository.sendPoseLandmark(
                     ConvertedLandmarkList(
                         exerciseKey.toString(),
