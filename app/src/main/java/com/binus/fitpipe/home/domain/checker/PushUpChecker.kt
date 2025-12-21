@@ -23,11 +23,16 @@ class PushUpChecker(
             handleFailed()
         }
 
-        if (!isFormCorrect(requiredPoints)) {
+        if (!isFormCorrect(requiredPoints) ) {
             isFormOkay = false
+            badFormFrameCount++
             return false
         }
 
+        if (badFormFrameCount >= BAD_FORM_THRESHOLD &&
+            exerciseStateManager.getCurrentState() != ExerciseState.WAITING_TO_START) {
+            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+        }
         isFormOkay = true
         processExerciseState(convertedLandmarks, requiredPoints)
         return true
@@ -41,6 +46,8 @@ class PushUpChecker(
         val rightShoulder = landmarks[MediaPipeKeyPointEnum.RIGHT_SHOULDER.keyId]
         val leftHip = landmarks[MediaPipeKeyPointEnum.LEFT_HIP.keyId]
         val rightHip = landmarks[MediaPipeKeyPointEnum.RIGHT_HIP.keyId]
+        val leftKnee = landmarks[MediaPipeKeyPointEnum.LEFT_KNEE.keyId]
+        val rightKnee = landmarks[MediaPipeKeyPointEnum.RIGHT_KNEE.keyId]
         val leftAnkle = landmarks[MediaPipeKeyPointEnum.LEFT_ANKLE.keyId]
         val rightAnkle = landmarks[MediaPipeKeyPointEnum.RIGHT_ANKLE.keyId]
         val leftWrist = landmarks[MediaPipeKeyPointEnum.LEFT_WRIST.keyId]
@@ -52,6 +59,7 @@ class PushUpChecker(
             leftEar to rightEar,
             leftShoulder to rightShoulder,
             leftHip to rightHip,
+            leftKnee to rightKnee,
             leftAnkle to rightAnkle,
             leftWrist to rightWrist,
             leftElbow to rightElbow
@@ -82,6 +90,7 @@ class PushUpChecker(
                 ear = leftEar,
                 shoulder = leftShoulder,
                 hip = leftHip,
+                knee = leftKnee,
                 ankle = leftAnkle,
                 wrist = leftWrist,
                 elbow = leftElbow
@@ -92,6 +101,7 @@ class PushUpChecker(
                 ear = rightEar,
                 shoulder = rightShoulder,
                 hip = rightHip,
+                knee = rightKnee,
                 ankle = rightAnkle,
                 wrist = rightWrist,
                 elbow = rightElbow
@@ -105,22 +115,16 @@ class PushUpChecker(
             points.shoulder.toFloat2(),
             points.hip.toFloat2()
         )
-        val hipAngle = get3dAngleBetweenPoints(
-            points.shoulder.toFloat3(),
-            points.hip.toFloat3(),
-            points.ankle.toFloat3()
-        )
-        val bodyAngle = get3dAngleBetweenPoints(
-            points.shoulder.toFloat3(),
-            points.ankle.toFloat3(),
-            Float3(points.wrist.x, points.ankle.y, points.wrist.z)
+        val hipAngle = get2dAngleBetweenPoints(
+            points.shoulder.toFloat2(),
+            points.hip.toFloat2(),
+            points.knee.toFloat2()
         )
 
         val bodyNotTooLow = points.ear.y > points.wrist.y - 0.1f
-        val isBodyStraight = neckAngle.isInTolerance(160f, tolerance = 40f) && hipAngle.isInTolerance(170f)
-        val isBodyAngleOkay = bodyAngle < 60f
+        val isBodyStraight = neckAngle.isInTolerance(160f, tolerance = 40f) && hipAngle.isInTolerance(170f, tolerance = 40f)
 
-        return isBodyStraight && isBodyAngleOkay && bodyNotTooLow
+        return isBodyStraight && bodyNotTooLow
     }
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: PushUpPoints) {
@@ -146,7 +150,7 @@ class PushUpChecker(
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, elbowAngle: Float, armAngle: Float) {
-        if (elbowAngle.isInTolerance(170f) && armAngle.isInTolerance(75f, tolerance = 40f)) {
+        if (elbowAngle.isInTolerance(170f, tolerance = 30f) && armAngle.isInTolerance(85f, tolerance = 40f)) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
             Log.d("PushUpChecker", "Push Up started")
@@ -182,6 +186,8 @@ class PushUpChecker(
         } else if (elbowAngle <= 45f) {
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
             Log.d("PushUpChecker", "Push Up failed")
+        }else{
+            badFormFrameCount++
         }
     }
 
@@ -207,6 +213,7 @@ class PushUpChecker(
         val ear: ConvertedLandmark,
         val shoulder: ConvertedLandmark,
         val hip: ConvertedLandmark,
+        val knee: ConvertedLandmark,
         val ankle: ConvertedLandmark,
         val wrist: ConvertedLandmark,
         val elbow: ConvertedLandmark

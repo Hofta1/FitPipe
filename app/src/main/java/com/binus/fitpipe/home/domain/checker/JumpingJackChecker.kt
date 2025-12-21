@@ -90,7 +90,7 @@ class JumpingJackChecker(
             leftHipAngle,
             rightHipAngle
             )
-        if (badFormFrameCount >= BAD_FORM_THRESHOLD) {
+        if (exerciseStateManager.getCurrentState() != ExerciseState.WAITING_TO_START && badFormFrameCount >= BAD_FORM_THRESHOLD) {
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
         return true

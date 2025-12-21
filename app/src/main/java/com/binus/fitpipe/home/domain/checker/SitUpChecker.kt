@@ -27,15 +27,12 @@ class SitUpChecker(
 
         if (!isFormCorrect(requiredPoints)) {
             isFormOkay = false
-            Log.d("SitUpChecker", "Sit Up form is bad")
             badFormFrameCount++
-
-            if (badFormFrameCount >= BAD_FORM_THRESHOLD &&
-                exerciseStateManager.getCurrentState() != ExerciseState.WAITING_TO_START) {
-                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
-                Log.d("SitUpChecker", "Exercise failed due to bad form")
-            }
             return false
+        }
+        if (badFormFrameCount >= BAD_FORM_THRESHOLD &&
+            exerciseStateManager.getCurrentState() != ExerciseState.WAITING_TO_START) {
+            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
         isFormOkay = true
         badFormFrameCount = 0

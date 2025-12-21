@@ -152,12 +152,12 @@ constructor(
                 _uiState.update { currentState ->
                     if(!uiState.value.isUseAPIStatus){
                         currentState.copy(
-                            formattedStatusString = sitUpChecker.getFormattedStatus(),
-                            isFormOkay = sitUpChecker.getFormStatus(),
+                            formattedStatusString = pushUpChecker.getFormattedStatus(),
+                            isFormOkay = pushUpChecker.getFormStatus(),
                         )
                     } else {
                         currentState.copy(
-                            isFormOkay = sitUpChecker.getFormStatus(),
+                            isFormOkay = pushUpChecker.getFormStatus(),
                         )
                     }
                 }
@@ -184,12 +184,12 @@ constructor(
                 _uiState.update { currentState ->
                     if(!uiState.value.isUseAPIStatus){
                         currentState.copy(
-                            formattedStatusString = sitUpChecker.getFormattedStatus(),
-                            isFormOkay = sitUpChecker.getFormStatus(),
+                            formattedStatusString = jumpingJackChecker.getFormattedStatus(),
+                            isFormOkay = jumpingJackChecker.getFormStatus(),
                         )
                     } else {
                         currentState.copy(
-                            isFormOkay = sitUpChecker.getFormStatus(),
+                            isFormOkay = jumpingJackChecker.getFormStatus(),
                         )
                     }
                 }
@@ -201,12 +201,12 @@ constructor(
                 _uiState.update { currentState ->
                     if(!uiState.value.isUseAPIStatus){
                         currentState.copy(
-                            formattedStatusString = sitUpChecker.getFormattedStatus(),
-                            isFormOkay = sitUpChecker.getFormStatus(),
+                            formattedStatusString = squatChecker.getFormattedStatus(),
+                            isFormOkay = squatChecker.getFormStatus(),
                         )
                     } else {
                         currentState.copy(
-                            isFormOkay = sitUpChecker.getFormStatus(),
+                            isFormOkay = squatChecker.getFormStatus(),
                         )
                     }
                 }
