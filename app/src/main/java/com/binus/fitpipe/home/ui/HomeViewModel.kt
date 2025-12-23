@@ -39,7 +39,7 @@ constructor(
     private lateinit var squatChecker: SquatChecker
     private var currentExerciseTitle: String = ""
 
-    private val fullErrorMessages: MutableList<String> = mutableListOf()
+    val fullErrorMessages: MutableList<String> = mutableListOf()
 
     private fun initializeChecker(exerciseTitle: String) {
         val exerciseKey = convertTitleToKey(exerciseTitle)
@@ -241,13 +241,13 @@ constructor(
                     _uiState.update { currentState ->
                         if(data?.status == true){
                             currentState.copy(
-                                formattedStatusString = data.fullFeedback ?: "",
+                                formattedStatusString = data.formattedFeedback ?: "",
                                 exerciseCount = currentState.exerciseCount + 1,
                                 isUseAPIStatus = true
                             )
                         } else {
                             currentState.copy(
-                                formattedStatusString = data?.fullFeedback ?: "",
+                                formattedStatusString = data?.formattedFeedback ?: "",
                                 isUseAPIStatus = true
                             )
                         }

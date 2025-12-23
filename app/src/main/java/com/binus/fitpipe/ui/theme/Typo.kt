@@ -51,4 +51,11 @@ object Typo {
             fontWeight = FontWeight.Medium,
             fontSize = 18.sp,
         )
+
+    val MediumTwenty =
+        TextStyle(
+            fontFamily = interFamily,
+            fontWeight = FontWeight.Medium,
+            fontSize = 20.sp,
+        )
 }

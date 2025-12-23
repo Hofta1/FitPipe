@@ -150,7 +150,7 @@ class PushUpChecker(
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, elbowAngle: Float, armAngle: Float) {
-        if (elbowAngle.isInTolerance(170f, tolerance = 30f) && armAngle.isInTolerance(85f, tolerance = 40f)) {
+        if (elbowAngle.isInTolerance(170f, tolerance = 30f) && armAngle.isInTolerance(85f, tolerance = 80f)) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
             Log.d("PushUpChecker", "Push Up started")
@@ -173,21 +173,21 @@ class PushUpChecker(
                 Log.d("PushUpChecker", "Push Up going up")
             }
             landmarkDataManager.addLandmarks(landmarks)
+        }else{
+            badFormFrameCount++
         }
     }
 
     private fun checkUpMax(landmarks: List<ConvertedLandmark>, elbowAngle: Float) {
         if (elbowAngle >= landmarkDataManager.getLastElbowAngle()) {
-            if (elbowAngle.isInTolerance(170f)) {
+            if (elbowAngle.isInTolerance(160f , tolerance = 30f)) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("PushUpChecker", "Push Up completed")
             }
             landmarkDataManager.addLandmarks(landmarks)
         } else if (elbowAngle <= 45f) {
-            exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
-            Log.d("PushUpChecker", "Push Up failed")
-        }else{
             badFormFrameCount++
+            Log.d("PushUpChecker", "Too Low")
         }
     }
 

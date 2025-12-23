@@ -12,4 +12,8 @@ class AppNavAction(private val navController: NavHostController) {
             navController.popBackStack()
         }
     }
+
+    fun onOpeningFeedbackHistory(){
+        navController.navigate(NavigationRoutes.feedbackLog())
+    }
 }

@@ -8,9 +8,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.binus.fitpipe.home.nav.ItemKey.Item_Feedback_Log
 import com.binus.fitpipe.home.nav.NavigationRoutes.CAMERA
+import com.binus.fitpipe.home.nav.NavigationRoutes.FEEDBACK_LOG
 import com.binus.fitpipe.home.nav.NavigationRoutes.HOME
 import com.binus.fitpipe.home.ui.CameraScreen
+import com.binus.fitpipe.home.ui.FeedbackLogScreen
 import com.binus.fitpipe.home.ui.HomeScreen
 import com.binus.fitpipe.home.ui.HomeViewModel
 
@@ -41,7 +44,19 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                         convertedLandmarkList
                     )
                 },
+                onOpeningFeedbackLog = {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(Item_Feedback_Log, viewModel.fullErrorMessages)
+                    navAction.onOpeningFeedbackHistory()
+                }
             )
+        }
+        composable(FEEDBACK_LOG) {
+            val feedbackLog = navController.previousBackStackEntry?.savedStateHandle?.get<List<String>>(Item_Feedback_Log).orEmpty()
+            FeedbackLogScreen(
+                onBackPressed = navAction::onBackPressed,
+                feedbackLog = feedbackLog
+            )
+
         }
     }
 }
@@ -50,7 +65,18 @@ object NavigationRoutes {
     const val HOME = "home"
     const val CAMERA = "camera"
 
+    const val FEEDBACK_LOG = "feedback_log"
+
     fun cameraWithArgs(exerciseTitle: String): String {
         return "$CAMERA/$exerciseTitle"
     }
+
+    fun feedbackLog(): String{
+        return FEEDBACK_LOG
+    }
+
+}
+
+object ItemKey{
+    const val Item_Feedback_Log = "Item_Feedback_Log"
 }

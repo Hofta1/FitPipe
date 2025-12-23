@@ -69,6 +69,7 @@ import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 internal fun CameraScreen(
     exerciseTitle: String,
     onBackPressed: () -> Unit,
+    onOpeningFeedbackLog: () -> Unit,
     uiState: HomeUiState,
     onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
 ) {
@@ -77,6 +78,7 @@ internal fun CameraScreen(
             exerciseTitle = exerciseTitle,
             modifier = Modifier,
             onBackPressed = onBackPressed,
+            onOpeningFeedbackLog = onOpeningFeedbackLog,
             uiState = uiState,
             onPoseDetected = onPoseDetected,
         )
@@ -88,6 +90,7 @@ private fun CameraScreen(
     exerciseTitle: String,
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit,
+    onOpeningFeedbackLog: () -> Unit,
     uiState: HomeUiState,
     onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
 ) {
@@ -120,6 +123,7 @@ private fun CameraScreen(
             exerciseTitle = exerciseTitle,
             modifier = modifier,
             onBackPressed = onBackPressed,
+            onOpeningFeedbackLog = onOpeningFeedbackLog,
             context = context,
             uiState = uiState,
             onPoseDetected = onPoseDetected,
@@ -134,6 +138,7 @@ private fun PoseScanLayoutScreen(
     exerciseTitle: String,
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit,
+    onOpeningFeedbackLog: () -> Unit,
     context: Context,
     uiState: HomeUiState,
     onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
@@ -187,12 +192,14 @@ private fun PoseScanLayoutScreen(
 
         Box(
             modifier = modifier
-                .fillMaxWidth()
-                .align(Alignment.TopCenter)
+                .fillMaxSize()
                 .systemBarsPadding()
-                .padding(horizontal = 16.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
         ) {
-            Column {
+            Column(
+                modifier = Modifier.align(Alignment.TopCenter),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
                 Row (
                     modifier = modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -217,35 +224,40 @@ private fun PoseScanLayoutScreen(
                             .padding(8.dp),
                     )
                 }
-                Row {
-                    Box(
-                        modifier = modifier.size(20.dp)
-                            .background(
-                                if (isFormOkay) Color.Green else Color.Red,
-                                shape = CircleShape
-                            )
-                    )
-                }
             }
-            Text(
-                text = formattedStatus,
-                style = Typo.MediumEighteen,
-                color = White80,
-                textAlign = TextAlign.Center,
-                modifier = modifier
-                    .background(
-                        color = Black70,
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    .padding(start = 8.dp)
-                    .align(Alignment.BottomCenter)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Box(
+                    modifier = modifier.size(24.dp)
+                        .background(
+                            if (isFormOkay) Color.Green else Color.Red,
+                            shape = CircleShape
+                        )
+                )
+                Text(
+                    text = formattedStatus,
+                    style = Typo.MediumTwenty,
+                    color = White80,
+                    textAlign = TextAlign.Center,
+                    modifier = modifier
+                        .background(
+                            color = Black70,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(start = 8.dp)
+                )
+                MoreButton(onClick = { onOpeningFeedbackLog() })
+            }
         }
     }
 }
 
 @Composable
-private fun BackButton(
+internal fun BackButton(
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit,
 ) {
@@ -260,6 +272,31 @@ private fun BackButton(
     ) {
         Image(
             painter = painterResource(R.drawable.line),
+            contentDescription = "Back Button",
+            modifier =
+                modifier
+                    .padding(8.dp)
+                    .fillMaxSize(),
+        )
+    }
+}
+
+@Composable
+private fun MoreButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier =
+            modifier
+                .clip(CircleShape)
+                .background(Grey70)
+                .size(30.dp)
+                .clickable { onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = painterResource(R.drawable.more_horizontal),
             contentDescription = "Back Button",
             modifier =
                 modifier
@@ -386,6 +423,7 @@ private fun CameraScreenPreview() {
     CameraScreen(
         exerciseTitle = "Push Up",
         onBackPressed = {},
+        onOpeningFeedbackLog = {},
         uiState = HomeUiState(),
         onPoseDetected = { _, _ -> },
     )
@@ -397,6 +435,7 @@ private fun ScanPosePreview() {
     PoseScanLayoutScreen(
         exerciseTitle = "Push Up",
         onBackPressed = {},
+        onOpeningFeedbackLog = {},
         context = LocalContext.current,
         uiState = HomeUiState(),
         onPoseDetected = { _, _ -> },

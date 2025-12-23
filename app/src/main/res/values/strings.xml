@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FitPipe</string>
+    <string name="title_activity_feedback_log_screen">FeedbackLogScreen</string>
 </resources>
