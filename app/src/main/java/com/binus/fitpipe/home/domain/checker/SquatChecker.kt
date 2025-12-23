@@ -13,7 +13,8 @@ import kotlin.math.abs
 class SquatChecker (
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
-    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
+    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
+    private val onUpdateStatusString: (String) -> Unit
 ): ExerciseChecker() {
 
     private var isUsingLeft: Boolean = true
@@ -134,7 +135,7 @@ class SquatChecker (
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
-        val isBodyStraight = kneeAngle.isInTolerance(180f) && hipAngle.isInTolerance(180f)
+        val isBodyStraight = kneeAngle.isInTolerance(180f, tolerance = 40f) && hipAngle.isInTolerance(180f, tolerance = 40f)
         if (isBodyStraight) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
@@ -145,8 +146,8 @@ class SquatChecker (
     private fun checkGoingDown(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
         val hipAngleDifference = abs(hipAngle - landmarkDataManager.getLastHipAngle(isUsingLeft))
         val kneeAngleDifference = abs(kneeAngle - landmarkDataManager.getLastKneeAngle())
-        val hipAngleOkay = hipAngle < landmarkDataManager.getLastHipAngle(isUsingLeft) && hipAngleDifference > 5f
-        val kneeAngleOkay = kneeAngle < landmarkDataManager.getLastKneeAngle() && kneeAngleDifference > 5f
+        val hipAngleOkay = hipAngle < landmarkDataManager.getLastHipAngle(isUsingLeft) && hipAngleDifference > 10f
+        val kneeAngleOkay = kneeAngle < landmarkDataManager.getLastKneeAngle() && kneeAngleDifference > 10f
         if (hipAngleOkay && kneeAngleOkay) {
             landmarkDataManager.addLandmarks(landmarks)
             exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
@@ -158,7 +159,7 @@ class SquatChecker (
         if (hipAngle <= landmarkDataManager.getLastHipAngle(isUsingLeft) || kneeAngle <= landmarkDataManager.getLastKneeAngle()) {
             Log.d("SquatChecker", "Current Hip Angle: $hipAngle, Current Knee Angle: $kneeAngle")
             landmarkDataManager.addLandmarks(landmarks)
-            if (hipAngle < 85f && kneeAngle < 85f) {
+            if (hipAngle < 85f && kneeAngle < 90f) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
                 Log.d("SquatChecker", "Squat going up")
             }
@@ -171,7 +172,7 @@ class SquatChecker (
 
     private fun checkUpMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
         if (hipAngle >= landmarkDataManager.getLastHipAngle(isUsingLeft) || kneeAngle >= landmarkDataManager.getLastKneeAngle()) {
-            if (hipAngle.isInTolerance(180f) && kneeAngle.isInTolerance(180f)) {
+            if (hipAngle.isInTolerance(180f, tolerance = 40f) && kneeAngle.isInTolerance(180f, tolerance = 40f)) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("SquatChecker", "Squat completed")
             }
@@ -183,7 +184,6 @@ class SquatChecker (
         if (landmarkDataManager.getLandmarkCount() < 30) {
             onExerciseCompleted(landmarkDataManager.getAllLandmarks())
         } else {
-            Log.d("SitUpChecker", "Too many landmarks: ${landmarkDataManager.getLandmarkCount()}")
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
         exerciseStateManager.updateState(ExerciseState.WAITING_TO_START)
@@ -192,6 +192,7 @@ class SquatChecker (
 
     private fun handleFailed() {
         landmarkDataManager.clear()
+        onUpdateStatusString(statusString)
         badFormFrameCount = 0
         exerciseStateManager.reset()
     }

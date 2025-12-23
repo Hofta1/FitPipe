@@ -14,7 +14,8 @@ import kotlin.text.get
 class SitUpChecker(
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
-    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
+    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
+    private val onUpdateStatusString: (String) -> Unit
 ): ExerciseChecker() {
 
     private var isUsingLeft: Boolean = true
@@ -212,6 +213,7 @@ class SitUpChecker(
 
     private fun handleFailed() {
         landmarkDataManager.clear()
+        onUpdateStatusString(statusString)
         exerciseStateManager.reset()
         badFormFrameCount = 0
     }

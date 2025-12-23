@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.binus.fitpipe.home.data.FeedbackLogUI
 import com.binus.fitpipe.home.nav.ItemKey.Item_Feedback_Log
 import com.binus.fitpipe.home.nav.NavigationRoutes.CAMERA
 import com.binus.fitpipe.home.nav.NavigationRoutes.FEEDBACK_LOG
@@ -51,7 +52,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             )
         }
         composable(FEEDBACK_LOG) {
-            val feedbackLog = navController.previousBackStackEntry?.savedStateHandle?.get<List<String>>(Item_Feedback_Log).orEmpty()
+            val feedbackLog = navController.previousBackStackEntry?.savedStateHandle?.get<List<FeedbackLogUI>>(Item_Feedback_Log).orEmpty()
             FeedbackLogScreen(
                 onBackPressed = navAction::onBackPressed,
                 feedbackLog = feedbackLog

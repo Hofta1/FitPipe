@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,9 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.binus.fitpipe.home.data.FeedbackLogUI
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
 import com.binus.fitpipe.ui.theme.Typo
@@ -30,8 +33,8 @@ import com.example.yourapp.ui.components.FPScaffold
 
 @Composable
 internal fun FeedbackLogScreen(
-        onBackPressed: () -> Unit,
-        feedbackLog: List<String>,
+    onBackPressed: () -> Unit,
+    feedbackLog: List<FeedbackLogUI>,
     ) {
     FitPipeTheme {
         FeedbackLogScreen(
@@ -46,7 +49,7 @@ internal fun FeedbackLogScreen(
 private fun FeedbackLogScreen(
     modifier: Modifier = Modifier,
     onBackPressed: () -> Unit,
-    feedbackLog: List<String>
+    feedbackLog: List<FeedbackLogUI>
 ) {
     Column(
         modifier = modifier
@@ -71,7 +74,8 @@ private fun FeedbackLogScreen(
             LazyColumn {
                 items(feedbackLog.size) { index ->
                     FeedbackLogRow(
-                        feedbackLog = feedbackLog[index]
+                        feedbackLog = feedbackLog[index].fullFeedback,
+                        feedbackStatus = feedbackLog[index].status
                     )
                 }
             }
@@ -107,6 +111,7 @@ private fun EmptyScreen(modifier: Modifier = Modifier){
 private fun FeedbackLogRow(
     modifier: Modifier = Modifier,
     feedbackLog: String,
+    feedbackStatus: Boolean,
 ) {
     Row(
         modifier =
@@ -127,6 +132,15 @@ private fun FeedbackLogRow(
                     .weight(1f),
             maxLines = 2
         )
+        Box(
+            modifier = modifier
+                .padding(top = 24.dp, end = 28.dp)
+                .size(24.dp)
+                .background(
+                    if (feedbackStatus) Color.Green else Color.Red,
+                    shape = CircleShape
+                )
+        )
     }
 }
 
@@ -137,8 +151,14 @@ private fun FeedbackLogScreenPreview() {
         FeedbackLogScreen(
             onBackPressed = {},
             feedbackLog = listOf(
-                "Good",
-                "Bad"
+                FeedbackLogUI(
+                    "Goo awdawdawdawdawdawdaw dawdwadawdwa awdawdawdawd awdawdaw dwaawd",
+                    true
+                ),
+                FeedbackLogUI(
+                    "Bad",
+                    false
+                ),
             )
         )
     }
@@ -149,7 +169,8 @@ private fun FeedbackLogScreenPreview() {
 private fun FeedbackLogRowPreview() {
     FitPipeTheme {
         FeedbackLogRow(
-            feedbackLog = "This is feedback hahahaha haahah ah ha hah wa ah hhdawhdahdw"
+            feedbackLog = "This is feedback hahahaha haahah ah ha hah wa ah hhdawhdahdw",
+            feedbackStatus = true
         )
     }
 }

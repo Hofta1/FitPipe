@@ -16,3 +16,8 @@ data class HomeRowData(
     val imageResourceId: Int,
     val exerciseKey: ExerciseKey,
 )
+
+data class FeedbackLogUI(
+    val fullFeedback: String,
+    val status: Boolean
+)

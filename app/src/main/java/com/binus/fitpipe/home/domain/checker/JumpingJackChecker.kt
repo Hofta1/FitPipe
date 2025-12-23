@@ -16,7 +16,8 @@ import kotlin.math.abs
 class JumpingJackChecker(
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
-    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit
+    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
+    private val onUpdateStatusString: (String) -> Unit
 ): ExerciseChecker() {
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val points = extractRequiredPoints(convertedLandmarks) ?: return false
@@ -275,6 +276,7 @@ class JumpingJackChecker(
 
     private fun handleFailed() {
         landmarkDataManager.clear()
+        onUpdateStatusString(statusString)
         exerciseStateManager.reset()
         badFormFrameCount = 0
     }

@@ -1,10 +1,10 @@
 package com.binus.fitpipe.home.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.binus.fitpipe.ExerciseKey
 import com.binus.fitpipe.R
+import com.binus.fitpipe.home.data.FeedbackLogUI
 import com.binus.fitpipe.home.data.HomeRepository
 import com.binus.fitpipe.home.data.HomeRowData
 import com.binus.fitpipe.home.data.HomeUiState
@@ -39,7 +39,7 @@ constructor(
     private lateinit var squatChecker: SquatChecker
     private var currentExerciseTitle: String = ""
 
-    val fullErrorMessages: MutableList<String> = mutableListOf()
+    val fullErrorMessages: MutableList<FeedbackLogUI> = mutableListOf()
 
     private fun initializeChecker(exerciseTitle: String) {
         val exerciseKey = convertTitleToKey(exerciseTitle)
@@ -51,6 +51,9 @@ constructor(
                     onExerciseCompleted = { landmarks ->
                         sendLandmarkData(exerciseTitle, landmarks)
                     },
+                    onUpdateStatusString = { statusString ->
+                        updateStatusString(statusString)
+                    }
                 )
             }
             ExerciseKey.situp -> {
@@ -60,6 +63,9 @@ constructor(
                     onExerciseCompleted = { landmarks ->
                         sendLandmarkData(exerciseTitle, landmarks)
                     },
+                    onUpdateStatusString = { statusString ->
+                        updateStatusString(statusString)
+                    }
                 )
             }
 
@@ -70,6 +76,9 @@ constructor(
                     onExerciseCompleted = { landmarks ->
                         sendLandmarkData(exerciseTitle, landmarks)
                     },
+                    onUpdateStatusString = { statusString ->
+                        updateStatusString(statusString)
+                    }
                 )
             }
 
@@ -80,6 +89,9 @@ constructor(
                     onExerciseCompleted = { landmarks ->
                         sendLandmarkData(exerciseTitle, landmarks)
                     },
+                    onUpdateStatusString = { statusString ->
+                        updateStatusString(statusString)
+                    }
                 )
                 // Initialize SquatChecker when implemented
             }
@@ -252,7 +264,12 @@ constructor(
                             )
                         }
                     }
-                    fullErrorMessages.add(data?.fullFeedback ?: "")
+                    fullErrorMessages.add(
+                            FeedbackLogUI(
+                                data?.fullFeedback ?: "",
+                                data?.status ?: false
+                            )
+                        )
                 }.onFailure { exception ->
                 }
             }
@@ -266,6 +283,14 @@ constructor(
             floatSequence.add(landmark.z)
         }
         return floatSequence
+    }
+
+    private fun updateStatusString(statusString: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                formattedStatusString = statusString,
+            )
+        }
     }
 
 
