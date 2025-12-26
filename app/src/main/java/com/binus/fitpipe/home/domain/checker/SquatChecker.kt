@@ -14,7 +14,8 @@ class SquatChecker (
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
-    private val onUpdateStatusString: (String) -> Unit
+    private val onUpdateStatusString: (String) -> Unit,
+    private val onUpdateState: (ExerciseState) -> Unit
 ): ExerciseChecker() {
 
     private var isUsingLeft: Boolean = true
@@ -89,14 +90,6 @@ class SquatChecker (
     }
 
     private fun isFormCorrect(points: SquatPoints): Boolean {
-//        var isShoulderDifferenceBig = false
-        if(landmarkDataManager.getLandmarkCount() > 1){
-            val shoulderEnum = if(isUsingLeft) MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId else MediaPipeKeyPointEnum.RIGHT_SHOULDER.keyId
-            val firstShoulderXFloat = landmarkDataManager.getStartingX(shoulderEnum)
-            val currentShoulderXFloat = points.shoulder.x
-            val shoulderXDifference = abs(currentShoulderXFloat - firstShoulderXFloat)
-//            isShoulderDifferenceBig = shoulderXDifference > 0.05f
-        }
 
         val kneeOverFoot = if(isUsingLeft) {
             points.foot.x - points.knee.x < -0.07f
@@ -107,7 +100,6 @@ class SquatChecker (
             statusString = "Knee can't be over foot"
         }
 
-//        return !isShoulderDifferenceBig && !kneeOverFoot
         return  !kneeOverFoot
     }
 
@@ -135,6 +127,7 @@ class SquatChecker (
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
+        onUpdateState(exerciseStateManager.getCurrentState())
         val isBodyStraight = kneeAngle.isInTolerance(180f, tolerance = 40f) && hipAngle.isInTolerance(180f, tolerance = 40f)
         if (isBodyStraight) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
@@ -151,7 +144,10 @@ class SquatChecker (
         if (hipAngleOkay && kneeAngleOkay) {
             landmarkDataManager.addLandmarks(landmarks)
             exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
+            onUpdateState(exerciseStateManager.getCurrentState())
             Log.d("SquatChecker", "Squat Going down")
+        }else{
+            badFormFrameCount++
         }
     }
 
@@ -161,6 +157,7 @@ class SquatChecker (
             landmarkDataManager.addLandmarks(landmarks)
             if (hipAngle < 85f && kneeAngle < 90f) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
+                onUpdateState(exerciseStateManager.getCurrentState())
                 Log.d("SquatChecker", "Squat going up")
             }
         }else if (kneeAngle > 150f) { //when the user goes up again without reaching the down max

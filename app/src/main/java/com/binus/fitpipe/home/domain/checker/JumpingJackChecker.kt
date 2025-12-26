@@ -17,7 +17,8 @@ class JumpingJackChecker(
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
-    private val onUpdateStatusString: (String) -> Unit
+    private val onUpdateStatusString: (String) -> Unit,
+    private val onUpdateState: (ExerciseState) -> Unit
 ): ExerciseChecker() {
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val points = extractRequiredPoints(convertedLandmarks) ?: return false
@@ -183,6 +184,7 @@ class JumpingJackChecker(
         ) {
         val isArmsDown = leftArmAngle < 35f && rightArmAngle < 35f
         val isLegsTogether = leftHipAngle < 20f && rightHipAngle < 20f
+        onUpdateState(exerciseStateManager.getCurrentState())
         if (isArmsDown && isLegsTogether) {
             Log.d("JumpingJackChecker", "Start")
             exerciseStateManager.updateState(ExerciseState.STARTED)
@@ -207,6 +209,7 @@ class JumpingJackChecker(
             Log.d("JumpingJackChecker", "Flex")
             landmarkDataManager.addLandmarks(landmarks)
             exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
+            onUpdateState(exerciseStateManager.getCurrentState())
         }
     }
 
@@ -225,6 +228,7 @@ class JumpingJackChecker(
                 (leftHipAngle + rightHipAngle).isInTolerance(75f, tolerance = 36f)) {
                 Log.d("JumpingJackChecker", "Extend")
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
+                onUpdateState(exerciseStateManager.getCurrentState())
             }
             landmarkDataManager.addLandmarks(landmarks)
         }else if(landmarkDataManager.getLastLeftHipAngle() - leftHipAngle > 10f ||

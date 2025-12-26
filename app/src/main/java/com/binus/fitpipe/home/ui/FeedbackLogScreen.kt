@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -24,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.binus.fitpipe.R
 import com.binus.fitpipe.home.data.FeedbackLogUI
 import com.binus.fitpipe.ui.theme.Black70
 import com.binus.fitpipe.ui.theme.FitPipeTheme
@@ -60,7 +60,9 @@ private fun FeedbackLogScreen(
         Box(Modifier
             .fillMaxWidth(),
             ){
-            BackButton{onBackPressed()}
+            CircleButtonImage(
+                drawableInt = R.drawable.line
+            ){onBackPressed()}
             Text(
                 text = "Feedback Log",
                 textAlign = TextAlign.Center,

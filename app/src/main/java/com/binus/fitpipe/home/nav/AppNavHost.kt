@@ -48,6 +48,9 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onOpeningFeedbackLog = {
                     navController.currentBackStackEntry?.savedStateHandle?.set(Item_Feedback_Log, viewModel.fullErrorMessages)
                     navAction.onOpeningFeedbackHistory()
+                },
+                getStateDrawableInt = {
+                    viewModel.getStateDrawableInt()
                 }
             )
         }

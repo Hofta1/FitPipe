@@ -16,7 +16,8 @@ class PushUpChecker(
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
-    private val onUpdateStatusString: (String) -> Unit
+    private val onUpdateStatusString: (String) -> Unit,
+    private val onUpdateState: (ExerciseState) -> Unit
 ): ExerciseChecker() {
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
@@ -151,6 +152,7 @@ class PushUpChecker(
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, elbowAngle: Float, armAngle: Float) {
+        onUpdateState(exerciseStateManager.getCurrentState())
         if (elbowAngle.isInTolerance(170f, tolerance = 30f) && armAngle.isInTolerance(85f, tolerance = 80f)) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
@@ -163,6 +165,7 @@ class PushUpChecker(
         if (elbowAngle < landmarkDataManager.getLastElbowAngle() && angleDifference > 5f) {
             landmarkDataManager.addLandmarks(landmarks)
             exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
+            onUpdateState(exerciseStateManager.getCurrentState())
             Log.d("PushUpChecker", "Push Up going down")
         }
     }
@@ -171,6 +174,7 @@ class PushUpChecker(
         if (elbowAngle <= landmarkDataManager.getLastElbowAngle()) {
             if (elbowAngle.isInTolerance(80f)) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
+                onUpdateState(exerciseStateManager.getCurrentState())
                 Log.d("PushUpChecker", "Push Up going up")
             }
             landmarkDataManager.addLandmarks(landmarks)

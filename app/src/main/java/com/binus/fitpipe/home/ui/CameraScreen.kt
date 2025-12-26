@@ -10,7 +10,6 @@ import android.view.WindowManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
-import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -74,6 +73,7 @@ internal fun CameraScreen(
     onOpeningFeedbackLog: () -> Unit,
     uiState: HomeUiState,
     onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
+    getStateDrawableInt: () -> Int,
 ) {
     FitPipeTheme {
         CameraScreen(
@@ -83,6 +83,7 @@ internal fun CameraScreen(
             onOpeningFeedbackLog = onOpeningFeedbackLog,
             uiState = uiState,
             onPoseDetected = onPoseDetected,
+            getStateDrawableInt = getStateDrawableInt
         )
     }
 }
@@ -95,6 +96,7 @@ private fun CameraScreen(
     onOpeningFeedbackLog: () -> Unit,
     uiState: HomeUiState,
     onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
+    getStateDrawableInt: () -> Int,
 ) {
     // Check and request camera permission
     val context = LocalContext.current
@@ -129,6 +131,7 @@ private fun CameraScreen(
             context = context,
             uiState = uiState,
             onPoseDetected = onPoseDetected,
+            getStateDrawableInt = getStateDrawableInt
         )
     }else{
         PleaseRotateScreen(modifier = modifier, exerciseTitle = exerciseTitle)
@@ -144,6 +147,7 @@ private fun PoseScanLayoutScreen(
     context: Context,
     uiState: HomeUiState,
     onPoseDetected: (exerciseTitle: String, landmarks: List<ConvertedLandmark>) -> Unit,
+    getStateDrawableInt: () -> Int
 ){
     val formattedStatus = uiState.formattedStatusString
     val exerciseCount = uiState.exerciseCount
@@ -200,13 +204,15 @@ private fun PoseScanLayoutScreen(
         ) {
             Column(
                 modifier = Modifier.align(Alignment.TopCenter),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row (
                     modifier = modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    BackButton { onBackPressed() }
+                    CircleButtonImage(
+                        drawableInt = R.drawable.line
+                    ) { onBackPressed() }
                     Text(
                         text = exerciseTitle,
                         style = Typo.BoldTwentyFour,
@@ -226,7 +232,15 @@ private fun PoseScanLayoutScreen(
                             .padding(8.dp),
                     )
                 }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    StateImage(drawableInt = getStateDrawableInt()) { }
+                }
             }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -257,40 +271,20 @@ private fun PoseScanLayoutScreen(
                         .padding(start = 8.dp)
                 )
                 Spacer(Modifier.size(8.dp))
-                MoreButton(onClick = { onOpeningFeedbackLog() })
+                CircleButtonImage(
+                    drawableInt = R.drawable.more_horizontal
+                ){
+                    onOpeningFeedbackLog()
+                }
             }
         }
     }
 }
 
 @Composable
-internal fun BackButton(
+internal fun CircleButtonImage(
     modifier: Modifier = Modifier,
-    onBackPressed: () -> Unit,
-) {
-    Box(
-        modifier =
-            modifier
-                .clip(CircleShape)
-                .background(Grey70)
-                .size(30.dp)
-                .clickable { onBackPressed() },
-        contentAlignment = Alignment.Center,
-    ) {
-        Image(
-            painter = painterResource(R.drawable.line),
-            contentDescription = "Back Button",
-            modifier =
-                modifier
-                    .padding(8.dp)
-                    .fillMaxSize(),
-        )
-    }
-}
-
-@Composable
-private fun MoreButton(
-    modifier: Modifier = Modifier,
+    drawableInt: Int,
     onClick: () -> Unit,
 ) {
     Box(
@@ -303,12 +297,38 @@ private fun MoreButton(
         contentAlignment = Alignment.Center,
     ) {
         Image(
-            painter = painterResource(R.drawable.more_horizontal),
-            contentDescription = "Back Button",
+            painter = painterResource(drawableInt),
+            contentDescription = "Button",
             modifier =
                 modifier
                     .padding(8.dp)
                     .fillMaxSize(),
+        )
+    }
+}
+
+@Composable
+internal fun StateImage(
+    modifier: Modifier = Modifier,
+    drawableInt: Int,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier =
+            modifier
+                .clip(CircleShape)
+                .background(Grey70)
+                .size(100.dp)
+                .clickable { onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = painterResource(drawableInt),
+            contentDescription = "Button",
+            modifier =
+                modifier
+                    .padding(8.dp)
+                    .size(200.dp),
         )
     }
 }
@@ -418,9 +438,10 @@ private fun isAutoRotationEnabled(context: Context): Boolean {
 @ComposePreview
 @Composable
 private fun BackButtonPreview() {
-    BackButton(
+    CircleButtonImage(
         modifier = Modifier,
-        onBackPressed = {},
+        drawableInt = R.drawable.line,
+        onClick = {},
     )
 }
 
@@ -433,6 +454,7 @@ private fun CameraScreenPreview() {
         onOpeningFeedbackLog = {},
         uiState = HomeUiState(),
         onPoseDetected = { _, _ -> },
+        getStateDrawableInt = {R.drawable.pose_tracker_logo}
     )
 }
 
@@ -446,5 +468,6 @@ private fun ScanPosePreview() {
         context = LocalContext.current,
         uiState = HomeUiState(),
         onPoseDetected = { _, _ -> },
+        getStateDrawableInt = {R.drawable.pose_tracker_logo}
     )
 }

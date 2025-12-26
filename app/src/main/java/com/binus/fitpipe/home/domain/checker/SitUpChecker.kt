@@ -15,7 +15,8 @@ class SitUpChecker(
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
     private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
-    private val onUpdateStatusString: (String) -> Unit
+    private val onUpdateStatusString: (String) -> Unit,
+    private val onUpdateState: (ExerciseState) -> Unit
 ): ExerciseChecker() {
 
     private var isUsingLeft: Boolean = true
@@ -154,6 +155,7 @@ class SitUpChecker(
     }
 
     private fun checkStartingPosition(landmarks: List<ConvertedLandmark>, hipAngle: Float) {
+        onUpdateState(exerciseStateManager.getCurrentState())
         if (hipAngle.isInTolerance(130f, tolerance = 20f)) {
             exerciseStateManager.updateState(ExerciseState.STARTED)
             landmarkDataManager.addLandmarks(landmarks)
@@ -167,6 +169,7 @@ class SitUpChecker(
         if (hipAngle < landmarkDataManager.getLastHipAngle(isUsingLeft) && angleDifference > 10f && shoulderY - landmarkDataManager.getLastY(enum) > 0.05f) {
             landmarkDataManager.addLandmarks(landmarks)
             exerciseStateManager.updateState(ExerciseState.GOING_FLEXION)
+            onUpdateState(exerciseStateManager.getCurrentState())
             Log.d("SitUpChecker", "Sit Up Going Up")
         }
     }
@@ -176,6 +179,7 @@ class SitUpChecker(
         if (hipAngle <= landmarkDataManager.getLastHipAngle(isUsingLeft) && shoulderY > landmarkDataManager.getLastY(enum) ) {
             if (hipAngle < 90f) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
+                onUpdateState(exerciseStateManager.getCurrentState())
                 Log.d("SitUpChecker", "Sit Up going down")
             }
             landmarkDataManager.addLandmarks(landmarks)

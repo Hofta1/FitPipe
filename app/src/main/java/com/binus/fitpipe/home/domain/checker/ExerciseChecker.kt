@@ -2,7 +2,7 @@ package com.binus.fitpipe.home.domain.checker
 
 abstract class ExerciseChecker {
     var isFormOkay = false
-    var statusString = ""
+    var statusString = "Failed"
     var badFormFrameCount = 0
     val BAD_FORM_THRESHOLD = 12
 

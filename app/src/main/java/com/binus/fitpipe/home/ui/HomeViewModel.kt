@@ -13,6 +13,7 @@ import com.binus.fitpipe.home.domain.checker.PushUpChecker
 import com.binus.fitpipe.home.domain.checker.SitUpChecker
 import com.binus.fitpipe.home.domain.checker.SquatChecker
 import com.binus.fitpipe.home.domain.data.LandmarkDataManager
+import com.binus.fitpipe.home.domain.state.ExerciseState
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
 import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
@@ -53,6 +54,9 @@ constructor(
                     },
                     onUpdateStatusString = { statusString ->
                         updateStatusString(statusString)
+                    },
+                    onUpdateState = { exerciseState ->
+                        updateExerciseState(exerciseState)
                     }
                 )
             }
@@ -65,6 +69,9 @@ constructor(
                     },
                     onUpdateStatusString = { statusString ->
                         updateStatusString(statusString)
+                    },
+                    onUpdateState = { exerciseState ->
+                        updateExerciseState(exerciseState)
                     }
                 )
             }
@@ -78,6 +85,9 @@ constructor(
                     },
                     onUpdateStatusString = { statusString ->
                         updateStatusString(statusString)
+                    },
+                    onUpdateState = { exerciseState ->
+                        updateExerciseState(exerciseState)
                     }
                 )
             }
@@ -91,6 +101,9 @@ constructor(
                     },
                     onUpdateStatusString = { statusString ->
                         updateStatusString(statusString)
+                    },
+                    onUpdateState = { exerciseState ->
+                        updateExerciseState(exerciseState)
                     }
                 )
                 // Initialize SquatChecker when implemented
@@ -275,6 +288,36 @@ constructor(
             }
     }
 
+    fun getStateDrawableInt(): Int{
+        val exerciseKey = convertTitleToKey(currentExerciseTitle)
+        return when(exerciseKey){
+            ExerciseKey.push_up -> {
+                when(exerciseState.getCurrentState()){
+                    ExerciseState.GOING_FLEXION -> R.drawable.push_up_flex
+                    ExerciseState.GOING_EXTENSION -> R.drawable.push_up_depress
+                    else -> R.drawable.push_up_start
+                }
+            }
+            ExerciseKey.situp -> {
+                when(exerciseState.getCurrentState()){
+                    ExerciseState.GOING_FLEXION -> R.drawable.situp_flex
+                    ExerciseState.GOING_EXTENSION -> R.drawable.situp_depress
+                    else -> R.drawable.situp_starting
+                }
+            }
+            ExerciseKey.squat -> {
+                when(exerciseState.getCurrentState()){
+                    ExerciseState.GOING_FLEXION -> R.drawable.squat_flex
+                    ExerciseState.GOING_EXTENSION -> R.drawable.squat_depress
+                    else -> R.drawable.squat_starting
+                }
+            }
+
+            else -> R.drawable.pose_tracker_logo
+        }
+    }
+
+
     private fun convertLandmarkToFloatSequence(landmarks: List<ConvertedLandmark>): List<Float> {
         val floatSequence = mutableListOf<Float>()
         landmarks.forEach { landmark ->
@@ -289,6 +332,14 @@ constructor(
         _uiState.update { currentState ->
             currentState.copy(
                 formattedStatusString = statusString,
+            )
+        }
+    }
+
+    private fun updateExerciseState(exerciseState: ExerciseState) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                exerciseState = exerciseState,
             )
         }
     }
