@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -238,18 +240,23 @@ private fun PoseScanLayoutScreen(
                             shape = CircleShape
                         )
                 )
+                Spacer(Modifier.size(8.dp))
                 Text(
                     text = formattedStatus,
                     style = Typo.MediumTwenty,
                     color = White80,
                     textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = modifier
+                        .weight(1f)
                         .background(
                             color = Black70,
                             shape = RoundedCornerShape(16.dp)
                         )
                         .padding(start = 8.dp)
                 )
+                Spacer(Modifier.size(8.dp))
                 MoreButton(onClick = { onOpeningFeedbackLog() })
             }
         }

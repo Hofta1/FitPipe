@@ -119,8 +119,8 @@ private fun FeedbackLogRow(
                 .padding(bottom = 8.dp)
                 .clip(RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp, topStart = 16.dp, bottomStart = 16.dp))
                 .fillMaxWidth()
-                .height(78.dp)
                 .background(color = Black70),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = feedbackLog,
@@ -128,18 +128,17 @@ private fun FeedbackLogRow(
             color = White80,
             modifier =
                 Modifier
-                    .padding(top = 24.dp, start = 28.dp)
+                    .padding(top = 24.dp, start = 28.dp, bottom = 24.dp)
                     .weight(1f),
-            maxLines = 2
         )
         Box(
             modifier = modifier
-                .padding(top = 24.dp, end = 28.dp)
+                .padding(end = 28.dp)
                 .size(24.dp)
                 .background(
                     if (feedbackStatus) Color.Green else Color.Red,
                     shape = CircleShape
-                )
+                ),
         )
     }
 }
