@@ -197,7 +197,7 @@ class SitUpChecker(
         landmarkDataManager.addLandmarks(landmarks)
         Log.d("SitUpChecker", "hipAngle: $hipAngle lastHipAngle ${landmarkDataManager.getLastHipAngle(isUsingLeft)} shoulderY: $shoulderY lastShoulderY: ${landmarkDataManager.getLastY(enum)}")
         if (hipAngle >= landmarkDataManager.getLastHipAngle(isUsingLeft) && isShoulderDeclining) {
-            if (hipAngle.isInTolerance(130f, tolerance = 50f)) {
+            if (hipAngle > 120f) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("SitUpChecker", "Sit Up completed")
             }
