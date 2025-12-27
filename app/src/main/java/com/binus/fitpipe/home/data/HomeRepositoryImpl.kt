@@ -1,7 +1,7 @@
 package com.binus.fitpipe.home.data
 
 import com.binus.fitpipe.home.ui.HomeService
-import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
+import com.binus.fitpipe.poselandmarker.ExerciseRequestBody
 import com.google.gson.annotations.SerializedName
 import javax.inject.Inject
 
@@ -10,10 +10,10 @@ class HomeRepositoryImpl
     constructor(
         private val service: HomeService,
     ) : HomeRepository {
-        override suspend fun sendPoseLandmark(convertedLandmarkList: ConvertedLandmarkList): Result<MediaPipeScanResponse> {
+        override suspend fun sendPoseLandmark(exerciseRequestBody: ExerciseRequestBody): Result<MediaPipeScanResponse> {
             return try {
-                println("Sending pose landmark: $convertedLandmarkList")
-                val data = service.sendPoseLandmark(convertedLandmarkList)
+                println("Sending pose landmark: $exerciseRequestBody")
+                val data = service.sendPoseLandmark(exerciseRequestBody)
                 Result.success(data)
             } catch (e: Exception) {
                 Result.failure(e)

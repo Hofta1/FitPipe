@@ -16,7 +16,7 @@ import kotlin.math.abs
 class JumpingJackChecker(
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
-    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
+    private val onExerciseCompleted: (List<List<ConvertedLandmark>>, Boolean) -> Unit,
     private val onUpdateStatusString: (String) -> Unit,
     private val onUpdateState: (ExerciseState) -> Unit
 ): ExerciseChecker() {
@@ -271,7 +271,7 @@ class JumpingJackChecker(
         if (landmarkDataManager.getLandmarkCount() >= 60) {
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }else{
-            onExerciseCompleted(landmarkDataManager.getAllLandmarks())
+            onExerciseCompleted(landmarkDataManager.getAllLandmarks(), true)
         }
         landmarkDataManager.clear()
         exerciseStateManager.reset()

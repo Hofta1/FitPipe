@@ -16,7 +16,7 @@ import com.binus.fitpipe.home.domain.data.LandmarkDataManager
 import com.binus.fitpipe.home.domain.state.ExerciseState
 import com.binus.fitpipe.home.domain.state.ExerciseStateManager
 import com.binus.fitpipe.poselandmarker.ConvertedLandmark
-import com.binus.fitpipe.poselandmarker.ConvertedLandmarkList
+import com.binus.fitpipe.poselandmarker.ExerciseRequestBody
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,8 +49,8 @@ constructor(
                 pushUpChecker = PushUpChecker(
                     landmarkDataManager,
                     exerciseState,
-                    onExerciseCompleted = { landmarks ->
-                        sendLandmarkData(exerciseTitle, landmarks)
+                    onExerciseCompleted = { landmarks, isFacingRight ->
+                        sendLandmarkData(exerciseTitle, landmarks, isFacingRight)
                     },
                     onUpdateStatusString = { statusString ->
                         updateStatusString(statusString)
@@ -64,8 +64,8 @@ constructor(
                 sitUpChecker = SitUpChecker(
                     landmarkDataManager,
                     exerciseState,
-                    onExerciseCompleted = { landmarks ->
-                        sendLandmarkData(exerciseTitle, landmarks)
+                    onExerciseCompleted = { landmarks, isFacingRight ->
+                        sendLandmarkData(exerciseTitle, landmarks, isFacingRight)
                     },
                     onUpdateStatusString = { statusString ->
                         updateStatusString(statusString)
@@ -80,8 +80,8 @@ constructor(
                 jumpingJackChecker = JumpingJackChecker(
                     landmarkDataManager,
                     exerciseState,
-                    onExerciseCompleted = { landmarks ->
-                        sendLandmarkData(exerciseTitle, landmarks)
+                    onExerciseCompleted = { landmarks, isFacingRight ->
+                        sendLandmarkData(exerciseTitle, landmarks, isFacingRight)
                     },
                     onUpdateStatusString = { statusString ->
                         updateStatusString(statusString)
@@ -96,8 +96,8 @@ constructor(
                 squatChecker = SquatChecker(
                     landmarkDataManager,
                     exerciseState,
-                    onExerciseCompleted = { landmarks ->
-                        sendLandmarkData(exerciseTitle, landmarks)
+                    onExerciseCompleted = { landmarks, isFacingRight ->
+                        sendLandmarkData(exerciseTitle, landmarks, isFacingRight)
                     },
                     onUpdateStatusString = { statusString ->
                         updateStatusString(statusString)
@@ -247,6 +247,7 @@ constructor(
     fun sendLandmarkData(
         exerciseTitle: String,
         convertedLandmarks: List<List<ConvertedLandmark>>,
+        isFacingRight: Boolean
     ) {
             viewModelScope.launch {
                 val floatLandmarkList = mutableListOf<List<Float>>()
@@ -255,9 +256,10 @@ constructor(
                 }
                 val exerciseKey = convertTitleToKey(exerciseTitle)
                 val result = homeRepository.sendPoseLandmark(
-                    ConvertedLandmarkList(
+                    ExerciseRequestBody(
                         exerciseKey.toString(),
-                        floatLandmarkList
+                        floatLandmarkList,
+                        isFacingRight
                     )
                 )
                 result.onSuccess {

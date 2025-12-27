@@ -15,10 +15,11 @@ import kotlin.math.abs
 class PushUpChecker(
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
-    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
+    private val onExerciseCompleted: (List<List<ConvertedLandmark>>, Boolean) -> Unit,
     private val onUpdateStatusString: (String) -> Unit,
     private val onUpdateState: (ExerciseState) -> Unit
 ): ExerciseChecker() {
+    private var isUsingLeft = false
     fun checkExercise(convertedLandmarks: List<ConvertedLandmark>): Boolean {
         val requiredPoints = extractRequiredPoints(convertedLandmarks) ?: return false
         if(exerciseStateManager.getCurrentState() == ExerciseState.EXERCISE_FAILED){
@@ -87,6 +88,7 @@ class PushUpChecker(
         }
 
         return if (leftCounter > rightCounter){
+            isUsingLeft = true
             PushUpPoints(
                 nose = nose,
                 ear = leftEar,
@@ -200,7 +202,7 @@ class PushUpChecker(
         if (landmarkDataManager.getLandmarkCount() >= 60) {
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }else{
-            onExerciseCompleted(landmarkDataManager.getAllLandmarks())
+            onExerciseCompleted(landmarkDataManager.getAllLandmarks(), !isUsingLeft)
         }
         landmarkDataManager.clear()
         exerciseStateManager.reset()

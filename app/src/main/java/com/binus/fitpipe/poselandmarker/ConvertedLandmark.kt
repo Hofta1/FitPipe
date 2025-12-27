@@ -20,11 +20,13 @@ data class ConvertedLandmark(
     }
 }
 
-data class ConvertedLandmarkList(
+data class ExerciseRequestBody(
     @SerializedName("posture")
     val poseKey: String,
     @SerializedName("mediapipe")
     val landmarks: List<List<Float>>,
+    @SerializedName("facingRight")
+    val isFacingRight: Boolean
 )
 
 // to debug

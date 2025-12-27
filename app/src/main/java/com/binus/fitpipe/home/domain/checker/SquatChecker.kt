@@ -13,7 +13,7 @@ import kotlin.math.abs
 class SquatChecker (
     private val landmarkDataManager: LandmarkDataManager,
     private val exerciseStateManager: ExerciseStateManager,
-    private val onExerciseCompleted: (List<List<ConvertedLandmark>>) -> Unit,
+    private val onExerciseCompleted: (List<List<ConvertedLandmark>>, Boolean) -> Unit,
     private val onUpdateStatusString: (String) -> Unit,
     private val onUpdateState: (ExerciseState) -> Unit
 ): ExerciseChecker() {
@@ -180,7 +180,7 @@ class SquatChecker (
 
     private fun handleCompleted() {
         if (landmarkDataManager.getLandmarkCount() < 60) {
-            onExerciseCompleted(landmarkDataManager.getAllLandmarks())
+            onExerciseCompleted(landmarkDataManager.getAllLandmarks(), !isUsingLeft)
         } else {
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
