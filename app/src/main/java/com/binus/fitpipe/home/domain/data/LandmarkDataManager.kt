@@ -63,9 +63,9 @@ class LandmarkDataManager {
     fun getLastHipAngle(isLeft: Boolean): Float {
         val lastLandmark = landmarkList.lastOrNull()
         return lastLandmark?.let { landmark ->
-            val lastShoulder = landmark[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId]
-            val lastHip = landmark[MediaPipeKeyPointEnum.LEFT_HIP.keyId]
-            val leftKnee = landmark[MediaPipeKeyPointEnum.LEFT_KNEE.keyId]
+            val lastShoulder = if (isLeft) landmark[MediaPipeKeyPointEnum.LEFT_SHOULDER.keyId] else landmark[MediaPipeKeyPointEnum.RIGHT_SHOULDER.keyId]
+            val lastHip = if (isLeft) landmark[MediaPipeKeyPointEnum.LEFT_HIP.keyId] else landmark[MediaPipeKeyPointEnum.RIGHT_HIP.keyId]
+            val leftKnee = if (isLeft) landmark[MediaPipeKeyPointEnum.LEFT_KNEE.keyId] else landmark[MediaPipeKeyPointEnum.RIGHT_KNEE.keyId]
             get2dAngleBetweenPoints(
                 lastShoulder.toFloat2(),
                 lastHip.toFloat2(),
