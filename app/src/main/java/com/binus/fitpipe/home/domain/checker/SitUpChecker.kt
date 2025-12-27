@@ -194,8 +194,8 @@ class SitUpChecker(
     private fun checkDownMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, shoulderY: Float) {
         val enum = if(isUsingLeft) MediaPipeKeyPointEnum.LEFT_SHOULDER else MediaPipeKeyPointEnum.RIGHT_SHOULDER
         val isShoulderDeclining = shoulderY < landmarkDataManager.getLastY(enum)
+        Log.d("SitUpChecker", "hipAngle: $hipAngle lastHipAngle ${landmarkDataManager.getLastHipAngle(isUsingLeft)} shoulderDeclining: $isShoulderDeclining")
         landmarkDataManager.addLandmarks(landmarks)
-        Log.d("SitUpChecker", "hipAngle: $hipAngle lastHipAngle ${landmarkDataManager.getLastHipAngle(isUsingLeft)} shoulderY: $shoulderY lastShoulderY: ${landmarkDataManager.getLastY(enum)}")
         if (hipAngle >= landmarkDataManager.getLastHipAngle(isUsingLeft) && isShoulderDeclining) {
             if (hipAngle > 120f) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
