@@ -112,7 +112,6 @@ class SitUpChecker(
             points.leftAnkle.toFloat3()
         )
         val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 60f)
-        Log.d("SitUpChecker", "Hipy: ${points.leftHip.y} Ankley: ${points.leftAnkle.y}")
         val isFeetOnTheGround = points.leftHip.y - points.leftAnkle.y < -0.1f
 
         var kneeAngleChanged = false
