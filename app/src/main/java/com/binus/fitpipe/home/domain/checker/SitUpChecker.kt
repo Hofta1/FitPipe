@@ -195,11 +195,9 @@ class SitUpChecker(
         val isShoulderDeclining = shoulderY < landmarkDataManager.getLastY(enum)
         Log.d("SitUpChecker", "hipAngle: $hipAngle lastHipAngle ${landmarkDataManager.getLastHipAngle(isUsingLeft)}")
         landmarkDataManager.addLandmarks(landmarks)
-        if (hipAngle >= landmarkDataManager.getLastHipAngle(isUsingLeft) && isShoulderDeclining) {
-            if (hipAngle > 120f) {
-                exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
-                Log.d("SitUpChecker", "Sit Up completed")
-            }
+        if (hipAngle > 120f && isShoulderDeclining) {
+            exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
+            Log.d("SitUpChecker", "Sit Up completed")
         }
     }
 
