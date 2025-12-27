@@ -268,22 +268,29 @@ constructor(
                             currentState.copy(
                                 formattedStatusString = data.formattedFeedback ?: "",
                                 exerciseCount = currentState.exerciseCount + 1,
-                                isUseAPIStatus = true
+                                isUseAPIStatus = true,
+                                shouldShowFailedConnection = false
                             )
                         } else {
                             currentState.copy(
                                 formattedStatusString = data?.formattedFeedback ?: "",
-                                isUseAPIStatus = true
+                                isUseAPIStatus = true,
+                                shouldShowFailedConnection = false
                             )
                         }
                     }
                     fullErrorMessages.add(
                             FeedbackLogUI(
                                 data?.fullFeedback ?: "",
-                                data?.status ?: false
+                                data?.status ?: false,
                             )
                         )
                 }.onFailure { exception ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            shouldShowFailedConnection = true
+                        )
+                    }
                 }
             }
     }
@@ -313,7 +320,7 @@ constructor(
                 }
             }
 
-            else -> R.drawable.pose_tracker_logo
+            else -> R.drawable.push_up_start
         }
     }
 

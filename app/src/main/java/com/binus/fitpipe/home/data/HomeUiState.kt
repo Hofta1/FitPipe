@@ -10,7 +10,8 @@ data class HomeUiState(
     val formattedStatusString: String = "",
     val isFormOkay: Boolean = false,
     val isUseAPIStatus: Boolean = false,
-    val exerciseState: ExerciseState? = null
+    val exerciseState: ExerciseState? = null,
+    val shouldShowFailedConnection: Boolean = false
 )
 
 data class HomeRowData(

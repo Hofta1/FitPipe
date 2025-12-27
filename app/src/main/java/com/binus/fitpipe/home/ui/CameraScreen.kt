@@ -45,7 +45,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -238,6 +240,9 @@ private fun PoseScanLayoutScreen(
                     horizontalArrangement = Arrangement.End
                 ) {
                     StateImage(drawableInt = getStateDrawableInt()) { }
+                    if(uiState.shouldShowFailedConnection){
+                        CircleButtonImage(drawableInt = R.drawable.fail_connection) { }
+                    }
                 }
             }
 
@@ -315,20 +320,20 @@ internal fun StateImage(
 ) {
     Box(
         modifier =
-            modifier
+            Modifier
                 .clip(CircleShape)
                 .background(Grey70)
-                .size(100.dp)
+                .size(75.dp)
                 .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Image(
             painter = painterResource(drawableInt),
             contentDescription = "Button",
-            modifier =
-                modifier
-                    .padding(8.dp)
-                    .size(200.dp),
+            contentScale = ContentScale.Crop,
+            modifier = modifier
+                .fillMaxSize()
+                .scale(1.7f),
         )
     }
 }
@@ -447,25 +452,21 @@ private fun BackButtonPreview() {
 
 @ComposePreview
 @Composable
-private fun CameraScreenPreview() {
-    CameraScreen(
-        exerciseTitle = "Push Up",
-        onBackPressed = {},
-        onOpeningFeedbackLog = {},
-        uiState = HomeUiState(),
-        onPoseDetected = { _, _ -> },
-        getStateDrawableInt = {R.drawable.pose_tracker_logo}
+private fun StateImagePreview() {
+    StateImage(
+        modifier = Modifier,
+        drawableInt = R.drawable.push_up_start,
+        onClick = {},
     )
 }
 
 @ComposePreview
 @Composable
-private fun ScanPosePreview() {
-    PoseScanLayoutScreen(
+private fun CameraScreenPreview() {
+    CameraScreen(
         exerciseTitle = "Push Up",
         onBackPressed = {},
         onOpeningFeedbackLog = {},
-        context = LocalContext.current,
         uiState = HomeUiState(),
         onPoseDetected = { _, _ -> },
         getStateDrawableInt = {R.drawable.pose_tracker_logo}
