@@ -126,7 +126,7 @@ class PushUpChecker(
         )
 
         val bodyNotTooLow = points.ear.y > points.wrist.y - 0.1f
-        val isBodyStraight = neckAngle.isInTolerance(160f, tolerance = 40f) && hipAngle.isInTolerance(170f, tolerance = 40f)
+        val isBodyStraight = neckAngle.isInTolerance(160f, tolerance = 40f) && hipAngle.isInTolerance(160f, tolerance = 40f)
 
         return isBodyStraight && bodyNotTooLow
     }
