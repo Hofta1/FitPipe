@@ -112,7 +112,8 @@ class SitUpChecker(
             points.leftAnkle.toFloat3()
         )
         val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 60f)
-        val isFeetOnTheGround = abs(points.leftHip.y - points.leftFoot.y) < 0.05f
+        Log.d("SitUpChecker", "Hipy: ${points.leftHip.y} Ankley: ${points.leftAnkle.y}")
+        val isFeetOnTheGround = points.leftHip.y - points.leftAnkle.y < -0.1f
 
         var kneeAngleChanged = false
 
@@ -127,14 +128,14 @@ class SitUpChecker(
                 "Knees Bent Too Much"
             }
         } else if(!isFeetOnTheGround) {
-//            statusString = "Feet Not On Ground"
+            statusString = "Feet Not On Ground"
         }
 
         if(kneeAngleChanged){
             statusString = "Feet move too much"
         }
 
-        return kneeAngleCorrect && !kneeAngleChanged
+        return kneeAngleCorrect && !kneeAngleChanged && !isFeetOnTheGround
     }
 
     private fun processExerciseState(landmarks: List<ConvertedLandmark>, points: SitUpPoints) {

@@ -302,7 +302,7 @@ constructor(
                 when(exerciseState.getCurrentState()){
                     ExerciseState.GOING_FLEXION -> R.drawable.situp_flex
                     ExerciseState.GOING_EXTENSION -> R.drawable.situp_depress
-                    else -> R.drawable.situp_starting
+                    else -> R.drawable.situp_flex
                 }
             }
             ExerciseKey.squat -> {
