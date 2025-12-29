@@ -37,7 +37,6 @@ class SitUpChecker(
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
         isFormOkay = true
-        badFormFrameCount = 0
         processExerciseState(convertedLandmarks, requiredPoints)
         return true
     }
@@ -66,7 +65,7 @@ class SitUpChecker(
         var rightCounter = 0
                 for (pair in bodyPairs) {
             if(pair.first.visibility.get() < 0.75f && pair.second.visibility.get() < 0.75f){
-                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+                badFormFrameCount++
                 return null
             }
             if (pair.first.visibility.get() >= pair.second.visibility.get()) {
@@ -193,7 +192,6 @@ class SitUpChecker(
     private fun checkDownMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, shoulderY: Float) {
         val enum = if(isUsingLeft) MediaPipeKeyPointEnum.LEFT_SHOULDER else MediaPipeKeyPointEnum.RIGHT_SHOULDER
         val isShoulderDeclining = shoulderY < landmarkDataManager.getLastY(enum)
-        Log.d("SitUpChecker", "hipAngle: $hipAngle lastHipAngle ${landmarkDataManager.getLastHipAngle(isUsingLeft)}")
         landmarkDataManager.addLandmarks(landmarks)
         if (hipAngle > 120f && isShoulderDeclining) {
             exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
