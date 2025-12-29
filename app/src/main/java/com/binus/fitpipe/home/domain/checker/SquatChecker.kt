@@ -169,12 +169,13 @@ class SquatChecker (
 
     private fun checkUpMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, kneeAngle: Float) {
         Log.d("SquatChecker", "Current Hip Angle: $hipAngle, Current Knee Angle: $kneeAngle")
+
+        landmarkDataManager.addLandmarks(landmarks)
         if (hipAngle >= landmarkDataManager.getLastHipAngle(isUsingLeft) || kneeAngle >= landmarkDataManager.getLastKneeAngle()) {
             if (hipAngle.isInTolerance(180f, tolerance = 40f) && kneeAngle.isInTolerance(180f, tolerance = 40f)) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("SquatChecker", "Squat completed")
             }
-            landmarkDataManager.addLandmarks(landmarks)
         }
     }
 
