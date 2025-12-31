@@ -37,7 +37,6 @@ class SitUpChecker(
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
         isFormOkay = true
-        badFormFrameCount = 0
         processExerciseState(convertedLandmarks, requiredPoints)
         return true
     }
@@ -66,6 +65,7 @@ class SitUpChecker(
         var rightCounter = 0
                 for (pair in bodyPairs) {
             if(pair.first.visibility.get() < 0.75f && pair.second.visibility.get() < 0.75f){
+                statusString = "Bad lighting"
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
                 return null
             }
@@ -113,7 +113,7 @@ class SitUpChecker(
         )
         val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 60f)
         Log.d("SitUpChecker", "Hipy: ${points.leftHip.y} Ankley: ${points.leftAnkle.y}")
-        val isFeetOnTheGround = points.leftHip.y - points.leftAnkle.y < -0.05f
+        val isFeetOnTheGround = points.leftHip.y - points.leftAnkle.y < -0.025f
 
         var kneeAngleChanged = false
 
@@ -178,7 +178,7 @@ class SitUpChecker(
     private fun checkUpMax(landmarks: List<ConvertedLandmark>, hipAngle: Float, shoulderY: Float) {
         val enum = if(isUsingLeft) MediaPipeKeyPointEnum.LEFT_SHOULDER else MediaPipeKeyPointEnum.RIGHT_SHOULDER
         if (hipAngle <= landmarkDataManager.getLastHipAngle(isUsingLeft) && shoulderY > landmarkDataManager.getLastY(enum) ) {
-            if (hipAngle < 90f) {
+            if (hipAngle < 70f) {
                 exerciseStateManager.updateState(ExerciseState.GOING_EXTENSION)
                 onUpdateState(exerciseStateManager.getCurrentState())
                 Log.d("SitUpChecker", "Sit Up going down")
