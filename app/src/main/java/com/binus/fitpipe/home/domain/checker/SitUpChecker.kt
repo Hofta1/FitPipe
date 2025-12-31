@@ -65,7 +65,7 @@ class SitUpChecker(
         var rightCounter = 0
                 for (pair in bodyPairs) {
             if(pair.first.visibility.get() < 0.75f && pair.second.visibility.get() < 0.75f){
-                statusString = "Bad lighting"
+                statusString = "Bad visibility"
                 badFormFrameCount++
                 return null
             }

@@ -64,7 +64,8 @@ class SquatChecker (
         )
         for (pair in bodyPairs) {
             if(pair.first.visibility.get() < 0.75f && pair.second.visibility.get() < 0.75f){
-                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+                statusString = "Bad visibility"
+                badFormFrameCount++
                 return null
             }
             if (pair.first.visibility.get() >= pair.second.visibility.get()) {
@@ -186,6 +187,7 @@ class SquatChecker (
             exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
         }
         exerciseStateManager.updateState(ExerciseState.WAITING_TO_START)
+        badFormFrameCount = 0
         landmarkDataManager.clear()
     }
 
