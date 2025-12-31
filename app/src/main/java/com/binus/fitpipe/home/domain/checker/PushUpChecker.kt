@@ -56,6 +56,8 @@ class PushUpChecker(
         val rightWrist = landmarks[MediaPipeKeyPointEnum.RIGHT_WRIST.keyId]
         val leftElbow = landmarks[MediaPipeKeyPointEnum.LEFT_ELBOW.keyId]
         val rightElbow = landmarks[MediaPipeKeyPointEnum.RIGHT_ELBOW.keyId]
+        val leftFoot = landmarks[MediaPipeKeyPointEnum.LEFT_FOOT_INDEX.keyId]
+        val rightFoot = landmarks[MediaPipeKeyPointEnum.RIGHT_FOOT_INDEX.keyId]
 
         val bodyPairs = listOf(
             leftEar to rightEar,
@@ -64,7 +66,8 @@ class PushUpChecker(
             leftKnee to rightKnee,
             leftAnkle to rightAnkle,
             leftWrist to rightWrist,
-            leftElbow to rightElbow
+            leftElbow to rightElbow,
+            leftFoot to rightFoot
         )
         var leftCounter = 0
         var rightCounter = 0
@@ -95,7 +98,8 @@ class PushUpChecker(
                 knee = leftKnee,
                 ankle = leftAnkle,
                 wrist = leftWrist,
-                elbow = leftElbow
+                elbow = leftElbow,
+                foot = leftFoot
             )
         } else{
             PushUpPoints(
@@ -106,7 +110,8 @@ class PushUpChecker(
                 knee = rightKnee,
                 ankle = rightAnkle,
                 wrist = rightWrist,
-                elbow = rightElbow
+                elbow = rightElbow,
+                foot = rightFoot
             )
         }
     }
@@ -123,7 +128,8 @@ class PushUpChecker(
             points.knee.toFloat2()
         )
 
-        val bodyNotTooLow = points.ear.y > points.wrist.y - 0.1f
+        val bodyNotTooLow = (points.ear.y - points.foot.y) > 0.1f
+        Log.d("PushUpChecker", "Diff: ${points.ear.y - points.wrist.y}")
         val isBodyStraight = neckAngle.isInTolerance(160f, tolerance = 40f) && hipAngle.isInTolerance(170f, tolerance = 40f)
 
         return isBodyStraight && bodyNotTooLow
@@ -184,12 +190,12 @@ class PushUpChecker(
     }
 
     private fun checkUpMax(landmarks: List<ConvertedLandmark>, elbowAngle: Float) {
+        landmarkDataManager.addLandmarks(landmarks)
         if (elbowAngle >= landmarkDataManager.getLastElbowAngle()) {
             if (elbowAngle.isInTolerance(160f , tolerance = 30f)) {
                 exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
                 Log.d("PushUpChecker", "Push Up completed")
             }
-            landmarkDataManager.addLandmarks(landmarks)
         } else if (elbowAngle <= 45f) {
             badFormFrameCount++
             Log.d("PushUpChecker", "Too Low")
@@ -222,6 +228,7 @@ class PushUpChecker(
         val knee: ConvertedLandmark,
         val ankle: ConvertedLandmark,
         val wrist: ConvertedLandmark,
-        val elbow: ConvertedLandmark
+        val elbow: ConvertedLandmark,
+        val foot: ConvertedLandmark
     )
 }

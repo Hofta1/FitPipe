@@ -66,7 +66,7 @@ class SitUpChecker(
                 for (pair in bodyPairs) {
             if(pair.first.visibility.get() < 0.75f && pair.second.visibility.get() < 0.75f){
                 statusString = "Bad lighting"
-                exerciseStateManager.updateState(ExerciseState.EXERCISE_FAILED)
+                badFormFrameCount++
                 return null
             }
             if (pair.first.visibility.get() >= pair.second.visibility.get()) {
@@ -113,7 +113,7 @@ class SitUpChecker(
         )
         val kneeAngleCorrect = kneeAngle.isInTolerance(idealKneeAngle, tolerance = 60f)
         Log.d("SitUpChecker", "Hipy: ${points.leftHip.y} Ankley: ${points.leftAnkle.y}")
-        val isFeetOnTheGround = points.leftHip.y - points.leftAnkle.y < -0.025f
+        val isFeetOnTheGround = points.leftHip.y - points.leftAnkle.y < -0.01f
 
         var kneeAngleChanged = false
 
@@ -196,11 +196,9 @@ class SitUpChecker(
         val isShoulderDeclining = shoulderY < landmarkDataManager.getLastY(enum)
         landmarkDataManager.addLandmarks(landmarks)
         Log.d("SitUpChecker", "hipAngle: $hipAngle lastHipAngle ${landmarkDataManager.getLastHipAngle(isUsingLeft)} shoulderY: $shoulderY lastShoulderY: ${landmarkDataManager.getLastY(enum)}")
-        if (hipAngle >= landmarkDataManager.getLastHipAngle(isUsingLeft) && isShoulderDeclining) {
-            if (hipAngle.isInTolerance(130f, tolerance = 50f)) {
-                exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
-                Log.d("SitUpChecker", "Sit Up completed")
-            }
+        if (hipAngle.isInTolerance(130f, tolerance = 50f)) {
+            exerciseStateManager.updateState(ExerciseState.EXERCISE_COMPLETED)
+            Log.d("SitUpChecker", "Sit Up completed")
         }
     }
 
