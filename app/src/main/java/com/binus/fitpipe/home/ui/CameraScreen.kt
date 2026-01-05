@@ -210,29 +210,25 @@ private fun PoseScanLayoutScreen(
             ) {
                 Row (
                     modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     CircleButtonImage(
                         drawableInt = R.drawable.line
                     ) { onBackPressed() }
+                    Spacer(Modifier.weight(1f))
                     Text(
                         text = exerciseTitle,
                         style = Typo.BoldTwentyFour,
                         color = White80,
                         textAlign = TextAlign.Center,
                     )
-                    Text(
-                        text = "Count: $exerciseCount",
-                        style = Typo.MediumEighteen,
-                        color = White80,
-                        textAlign = TextAlign.Center,
-                        modifier = modifier
-                            .background(
-                                color = Black70,
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .padding(8.dp),
-                    )
+                    Spacer(Modifier.weight(1f))
+
+                    if(uiState.shouldShowFailedConnection){
+                        CircleButtonImage(drawableInt = R.drawable.fail_connection, backgroundColor = White80) { }
+                    }else{
+                        Spacer(Modifier.size(30.dp))
+                    }
                 }
                 Row(
                     modifier = Modifier
@@ -240,46 +236,60 @@ private fun PoseScanLayoutScreen(
                     horizontalArrangement = Arrangement.End
                 ) {
                     StateImage(drawableInt = getStateDrawableInt()) { }
-                    if(uiState.shouldShowFailedConnection){
-                        CircleButtonImage(drawableInt = R.drawable.fail_connection) { }
-                    }
                 }
             }
 
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomStart),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Box(
-                    modifier = modifier.size(24.dp)
-                        .background(
-                            if (isFormOkay) Color.Green else Color.Red,
-                            shape = CircleShape
-                        )
-                )
-                Spacer(Modifier.size(8.dp))
                 Text(
-                    text = formattedStatus,
-                    style = Typo.MediumTwenty,
+                    text = "Count: $exerciseCount",
+                    style = Typo.MediumEighteen,
                     color = White80,
                     textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                     modifier = modifier
-                        .weight(1f)
                         .background(
                             color = Black70,
                             shape = RoundedCornerShape(16.dp)
                         )
-                        .padding(start = 8.dp)
+                        .padding(8.dp),
                 )
-                Spacer(Modifier.size(8.dp))
-                CircleButtonImage(
-                    drawableInt = R.drawable.more_horizontal
-                ){
-                    onOpeningFeedbackLog()
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Box(
+                        modifier = modifier.size(24.dp)
+                            .background(
+                                if (isFormOkay) Color.Green else Color.Red,
+                                shape = CircleShape
+                            )
+                    )
+                    Spacer(Modifier.size(8.dp))
+                    Text(
+                        text = formattedStatus,
+                        style = Typo.MediumTwenty,
+                        color = White80,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = modifier
+                            .weight(1f)
+                            .background(
+                                color = Black70,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(start = 8.dp)
+                    )
+                    Spacer(Modifier.size(8.dp))
+                    CircleButtonImage(
+                        drawableInt = R.drawable.more_horizontal
+                    ){
+                        onOpeningFeedbackLog()
+                    }
                 }
             }
         }
@@ -290,6 +300,7 @@ private fun PoseScanLayoutScreen(
 internal fun CircleButtonImage(
     modifier: Modifier = Modifier,
     drawableInt: Int,
+    backgroundColor: Color = Grey70,
     onClick: () -> Unit,
 ) {
     Box(
