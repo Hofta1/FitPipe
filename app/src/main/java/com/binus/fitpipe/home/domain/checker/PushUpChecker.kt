@@ -129,7 +129,7 @@ class PushUpChecker(
             points.knee.toFloat2()
         )
 
-        val bodyNotTooLow = (points.ear.y - points.foot.y) > 0.1f
+        val bodyNotTooLow = (points.ear.y - points.foot.y) > 0.01f
         Log.d("PushUpChecker", "Diff: ${points.ear.y - points.wrist.y}")
         val isBodyStraight = neckAngle.isInTolerance(160f, tolerance = 40f) && hipAngle.isInTolerance(170f, tolerance = 40f)
 
